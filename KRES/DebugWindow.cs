@@ -240,7 +240,7 @@ namespace KRES
         /// </summary>
         public void Print(Vector4d value)
         {
-            Print("Vector4: XYZW(" + value.x + ", " + value.y + ", " + value.z + ", " + value.w + ")");
+            Print("Vector4d: XYZW(" + value.x + ", " + value.y + ", " + value.z + ", " + value.w + ")");
         }
 
         /// <summary>
