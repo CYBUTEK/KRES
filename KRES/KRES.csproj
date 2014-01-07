@@ -42,9 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animate.cs" />
+    <Compile Include="ResourceBody.cs" />
     <Compile Include="DebugWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceController.cs" />
+    <Compile Include="ResourceLoader.cs" />
+    <Compile Include="ResourceMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

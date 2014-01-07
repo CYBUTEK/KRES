@@ -15,11 +15,12 @@ namespace KRES
         private Vector2 windowSize = new Vector2(400f, 0f);
         private Rect windowPosition = new Rect();
         private int windowID = Guid.NewGuid().GetHashCode();
-        private int numberOfEntries = 10;
+        private int numberOfEntries = 5;
         private Queue<string> logEntries = new Queue<string>();
         private bool showTexture = false;
         private string textureName = string.Empty;
         private Texture textureImage = null;
+        private float textureScale = 1f;
         #endregion
 
         #region Properties
@@ -84,6 +85,16 @@ namespace KRES
             }
             GUILayout.EndHorizontal();
 
+            if (GUILayout.Button("Show Resources", HighLogic.Skin.button))
+            {
+                ResourceController.Instance.ShowResource("LiquidFuel");
+            }
+
+            if (GUILayout.Button("Hide Resources", HighLogic.Skin.button))
+            {
+                ResourceController.Instance.HideResource("LiquidFuel");
+            }
+
             // If a texture has been set allow it to be displayed.
             if (this.textureImage != null)
             {
@@ -105,7 +116,23 @@ namespace KRES
                         GUILayout.Label(this.textureName);
                     }
 
-                    GUILayout.Box(this.textureImage);
+                    GUILayout.BeginHorizontal();
+                    float previousScale = this.textureScale;
+                    this.textureScale = GUILayout.HorizontalSlider(this.textureScale, 0.1f, 1f, GUILayout.ExpandWidth(true));
+                    GUILayout.Label((this.textureScale * 100f).ToString("F0") + "%");
+                    GUILayout.EndHorizontal();
+
+                    if (this.textureScale != previousScale)
+                    {
+                        this.windowPosition.width = this.windowSize.x;
+                        this.windowPosition.height = this.windowSize.y;
+                    }
+                    GUILayoutOption[] boxOptions = 
+                    {
+                        GUILayout.Width(this.textureImage.width * this.textureScale),
+                        GUILayout.Height(this.textureImage.height * this.textureScale)
+                    };
+                    GUILayout.Box(this.textureImage, boxOptions);
                 }
             }
 
@@ -113,7 +140,7 @@ namespace KRES
         }
         #endregion
 
-        #region Public Methods
+        #region Print
         /// <summary>
         /// Prints a log entry to the debug window and KSP log file.
         /// </summary>
@@ -125,9 +152,115 @@ namespace KRES
             }
 
             this.logEntries.Enqueue(entry);
-            print("[KRES Log]: " + entry);
+            print("[KRES Debug]: " + entry);
         }
 
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Integer)
+        /// </summary>
+        public void Print(int value)
+        {
+            Print("Integer: " + value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Float)
+        /// </summary>
+        public void Print(float value)
+        {
+            Print("Float: " + value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Double)
+        /// </summary>
+        public void Print(double value)
+        {
+            Print("Double: " + value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Boolean)
+        /// </summary>
+        public void Print(bool value)
+        {
+            Print("Boolean: " + value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Byte)
+        /// </summary>
+        public void Print(byte value)
+        {
+            Print("Byte: " + value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector2)
+        /// </summary>
+        public void Print(Vector2 value)
+        {
+            Print("Vector2: XY(" + value.x + ", " + value.y + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector2d)
+        /// </summary>
+        public void Print(Vector2d value)
+        {
+            Print("Vector2d: XY(" + value.x + ", " + value.y + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector3)
+        /// </summary>
+        public void Print(Vector3 value)
+        {
+            Print("Vector3: XYZ(" + value.x + ", " + value.y + ", " + value.z + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector3d)
+        /// </summary>
+        public void Print(Vector3d value)
+        {
+            Print("Vector3d: XYZ(" + value.x + ", " + value.y + ", " + value.z + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector4)
+        /// </summary>
+        public void Print(Vector4 value)
+        {
+            Print("Vector4: XYZW(" + value.x + ", " + value.y + ", " + value.z + ", " + value.w + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector4d)
+        /// </summary>
+        public void Print(Vector4d value)
+        {
+            Print("Vector4: XYZW(" + value.x + ", " + value.y + ", " + value.z + ", " + value.w + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Color)
+        /// </summary>
+        public void Print(Color value)
+        {
+            Print("Color: RGBA(" + value.r + ", " +  value.g + ", " + value.b + ", " + value.a + ")");
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Array)
+        /// </summary>
+        public void Print(Array value)
+        {
+            Print(value.GetType().Name + ": " + value.Length);
+        }
+        #endregion
+
+        #region Texture
         /// <summary>
         /// Sets a texture that can be viewed from within the debug window.
         /// </summary>
@@ -135,6 +268,15 @@ namespace KRES
         {
             this.textureImage = textureImage;
             this.textureName = textureName;
+        }
+
+        /// <summary>
+        /// Clears the currently displayed texture.
+        /// </summary>
+        public void ClearTexture()
+        {
+            this.textureImage = null;
+            this.textureName = string.Empty;
         }
         #endregion
     }
