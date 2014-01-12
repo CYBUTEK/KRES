@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animate.cs" />
-    <Compile Include="KRESSEttings.cs" />
+    <Compile Include="KRESSettings.cs" />
     <Compile Include="MapGenerator.cs" />
     <Compile Include="ResourceBody.cs" />
     <Compile Include="DebugWindow.cs" />
