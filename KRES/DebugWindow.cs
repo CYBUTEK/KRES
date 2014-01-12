@@ -252,6 +252,14 @@ namespace KRES
         }
 
         /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Color)
+        /// </summary>
+        public void Print(Rect value)
+        {
+            Print("Rect: XYWH(" + value.x + ", " + value.y + ", " + value.width + ", " + value.height + ")");
+        }
+
+        /// <summary>
         /// Prints a log entry to the debug window and KSP log file. (Array)
         /// </summary>
         public void Print(Array value)
