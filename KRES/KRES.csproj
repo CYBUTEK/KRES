@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Animate.cs" />
     <Compile Include="KRESSettings.cs" />
+    <Compile Include="KRESUtils.cs" />
     <Compile Include="MapGenerator.cs" />
     <Compile Include="ResourceBody.cs" />
     <Compile Include="DebugWindow.cs" />

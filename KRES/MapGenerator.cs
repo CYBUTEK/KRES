@@ -26,7 +26,11 @@ namespace KRES
             ConfigNode settings = new ConfigNode("settings");
             ConfigNode cfg = new ConfigNode("KRES");
             string saveFile = "saves/" + HighLogic.fetch.GameSaveFolder + "/KRESSettings.cfg";
-            ConfigNode test = ConfigNode.Load(Path.Combine(KSPUtil.ApplicationRootPath, saveFile));
+            ConfigNode test = null;
+
+            if (ConfigNode.Load(Path.Combine(KSPUtil.ApplicationRootPath, saveFile)) != null) { test = ConfigNode.Load(Path.Combine(KSPUtil.ApplicationRootPath, saveFile)); }
+
+            else { Debug.LogWarning("[KRES]: KRESSettings.cfg is missing"); }
 
             //Gets the settings node
             if (test != null)
@@ -37,8 +41,6 @@ namespace KRES
 
             else
             {
-                print("[KRES]: KRESSettings.cfg is missing");
-
                 //Create KRES config
                 print("[KRES]: Creating new KRESSettings.cfg");
                 cfg.AddValue("octaves", 1d);
@@ -46,7 +48,7 @@ namespace KRES
                 cfg.AddValue("frequency", 1d);
 
                 //Generate all the planet config nodes
-                KRESSettings.GenerateSettings(cfg);
+                KRESSettings.GenerateSettings(cfg, "KRESDefaults");
 
                 //Save settings
                 settings.AddNode(cfg);
