@@ -252,7 +252,7 @@ namespace KRES
         }
 
         /// <summary>
-        /// Prints a log entry to the debug window and KSP log file. (Color)
+        /// Prints a log entry to the debug window and KSP log file. (Rect)
         /// </summary>
         public void Print(Rect value)
         {
