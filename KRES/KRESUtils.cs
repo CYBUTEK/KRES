@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace KRES
@@ -17,6 +19,25 @@ namespace KRES
             }
             result = null;
             return false;
+        }
+
+        public static GUIStyle GetDottyFontStyle()
+        {
+            ScreenMessages messages = (GameObject.FindObjectOfType(typeof(ScreenMessages)) as ScreenMessages);
+
+            foreach (GUIStyle style in messages.textStyles)
+            {
+                if (style.font.name == "dotty")
+                {
+                    return style;
+                }
+            }
+            return HighLogic.Skin.label;
+        }
+
+        public static string GetDLLPath()
+        {
+            return new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
         }
     }
 }

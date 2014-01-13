@@ -260,6 +260,14 @@ namespace KRES
         }
 
         /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (string[])
+        /// </summary>
+        public void Print(string[] value)
+        {
+            Print("String[]: " + string.Join(", ", value));
+        }
+
+        /// <summary>
         /// Prints a log entry to the debug window and KSP log file. (Array)
         /// </summary>
         public void Print(Array value)

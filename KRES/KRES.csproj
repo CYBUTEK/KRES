@@ -42,8 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animate.cs" />
+    <Compile Include="MainMenu\MenuOverlay.cs" />
     <Compile Include="KRESSettings.cs" />
     <Compile Include="KRESUtils.cs" />
+    <Compile Include="MainMenu\PackSelector.cs" />
     <Compile Include="MapGenerator.cs" />
     <Compile Include="ResourceBody.cs" />
     <Compile Include="DebugWindow.cs" />
