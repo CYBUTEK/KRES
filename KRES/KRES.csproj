@@ -48,7 +48,6 @@
     <Compile Include="Defaults\DefaultConfig.cs" />
     <Compile Include="Extensions\ConfigNodeExt.cs" />
     <Compile Include="MainMenu\MenuOverlay.cs" />
-    <Compile Include="KRESSettings.cs" />
     <Compile Include="KRESUtils.cs" />
     <Compile Include="MainMenu\PackSelector.cs" />
     <Compile Include="MapGenerator.cs" />

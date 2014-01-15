@@ -5,7 +5,7 @@ namespace KRES
 {
     public static class Animate
     {
-        static void InitiateAnimation(Part part, string animationName)
+        public static void InitiateAnimation(Part part, string animationName)
         {
             foreach (Animation anim in part.FindModelAnimators(animationName))
             {

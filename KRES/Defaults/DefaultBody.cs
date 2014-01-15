@@ -31,6 +31,8 @@ namespace KRES.Defaults
                 DefaultResource resource = new DefaultResource();
                 resource.Name = resourceNode.GetValue("name");
                 resource.Type = resourceNode.GetValue("type");
+                Vector4 col = KSPUtil.ParseVector4(resourceNode.GetValue("colour"));
+                resource.Colour = new Color(col.x, col.y, col.z, col.w);
                 resource.Density = double.Parse(resourceNode.GetValue("density"));
                 resource.Octaves = double.Parse(resourceNode.GetValue("octaves"));
                 resource.Persistence = double.Parse(resourceNode.GetValue("persistence"));

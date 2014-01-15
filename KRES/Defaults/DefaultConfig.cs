@@ -35,7 +35,7 @@ namespace KRES.Defaults
 
             foreach (ConfigNode bodyNode in configNode.GetNodes("KRES_BODY"))
             {
-                if (FlightGlobals.Bodies.Any(b => b.name == bodyNode.GetValue("name")))
+                if (KRESUtils.IsCelestialBody(bodyNode.GetValue("name")))
                 {
                     this.bodies.Add(new DefaultBody(bodyNode));
                 }
