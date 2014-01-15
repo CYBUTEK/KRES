@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using UnityEngine;
 
 namespace KRES.Defaults
 {
@@ -28,11 +25,32 @@ namespace KRES.Defaults
             set { this.biome = value; }
         }
 
-        private float density = 0;
-        public float Density
+        private double density = 0;
+        public double Density
         {
             get { return this.density; }
             set { this.density = value; }
+        }
+
+        private double octaves = 0;
+        public double Octaves
+        {
+            get { return this.octaves; }
+            set { this.octaves = value; }
+        }
+
+        private double persistence = 0;
+        public double Persistence
+        {
+            get { return this.persistence; }
+            set { this.persistence = value; }
+        }
+
+        private double frequency = 0;
+        public double Frequency
+        {
+            get { return this.frequency; }
+            set { this.frequency = value; }
         }
     }
 }

@@ -17,10 +17,10 @@ namespace KRES.Defaults
             get { return this.description; }
         }
 
-        private List<DefaultResource> resources = new List<DefaultResource>();
-        public List<DefaultResource> Resources
+        private List<DefaultBody> bodies = new List<DefaultBody>();
+        public List<DefaultBody> Bodies
         {
-            get { return this.resources; }
+            get { return this.bodies; }
         }
         #endregion
 
@@ -31,19 +31,37 @@ namespace KRES.Defaults
         {
             this.name = configNode.GetValue("name");
             this.description = configNode.GetValue("description");
-            
-            foreach (ConfigNode resourceNode in configNode.GetNodes("KRES_RESOURCE"))
+
+            foreach (ConfigNode bodyNode in configNode.GetNodes("KRES_BODY"))
             {
-                DefaultResource resource = new DefaultResource();
-                resource.Name = resourceNode.GetValue("name");
-                resource.Type = resourceNode.GetValue("type");
-                if (resourceNode.HasValue("biome"))
-                {
-                    resource.Biome = resourceNode.GetValue("biome");
-                }
-                resource.Density = float.Parse(resourceNode.GetValue("density"));
-                this.resources.Add(resource);
+                this.bodies.Add(new DefaultBody(bodyNode));
             }
+        }
+        #endregion
+
+        #region Public Methods
+        public DefaultBody GetBody(string name)
+        {
+            foreach (DefaultBody body in this.bodies)
+            {
+                if (body.Name == name)
+                {
+                    return body;
+                }
+            }
+            return null;
+        }
+
+        public bool HasBody(string name)
+        {
+            foreach (DefaultBody body in this.bodies)
+            {
+                if (body.Name == name)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         #endregion
     }
