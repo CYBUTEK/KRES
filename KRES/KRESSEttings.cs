@@ -24,7 +24,7 @@ namespace KRES
 
         #region ConfigCreators
         //Adds a KRES_RESOURCE node
-        private static void CreateResource(ConfigNode cfg, string name, float density, string type)
+        private static void CreateResource(ConfigNode cfg, string name, string colour, string density, string type, string octaves, string persistence, string frequency)
         {
             cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
             foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
@@ -32,13 +32,17 @@ namespace KRES
                 if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
                 {
                     if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
+                    resource.AddValue("colour", colour);
                     resource.AddValue("density", density);
                     resource.AddValue("type", type);
+                    resource.AddValue("octaves", octaves);
+                    resource.AddValue("persistence", persistence);
+                    resource.AddValue("frequency", frequency);
                 }
             }
         }
 
-        private static void CreateResource(ConfigNode cfg, string name, float density, string type, string biome)
+        private static void CreateResource(ConfigNode cfg, string name, string colour, string density, string type, string octaves, string persistence, string frequency, string biome)
         {
             cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
             foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
@@ -46,8 +50,12 @@ namespace KRES
                 if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
                 {
                     if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
+                    resource.AddValue("colour", colour);
                     resource.AddValue("density", density);
                     resource.AddValue("type", type);
+                    resource.AddValue("octaves", octaves);
+                    resource.AddValue("persistence", persistence);
+                    resource.AddValue("frequency", frequency);
                     resource.AddValue("biome", biome);
                 }
             }
@@ -81,7 +89,7 @@ namespace KRES
             //Checks for all planet nodes
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
-                if (!cfg.HasNode(body.bodyName))
+                if (!cfg.HasNode(body.bodyName) && body.bodyName != "Sun")
                 {
                     //Create body node               
                     Debug.Log("[KRES]: Creating " + body.bodyName + " node");
@@ -89,23 +97,21 @@ namespace KRES
                     ConfigNode node = cfg.GetNode(body.bodyName);
                     if (defaults.GetNode(body.bodyName) != null)
                     {
-                        foreach (ConfigNode resource in defaults.GetNode(body.bodyName).GetNodes("KRES_RESOURCES"))
+                        foreach (ConfigNode resource in defaults.GetNode(body.bodyName).GetNodes("KRES_RESOURCE"))
                         {
-                            string name = string.Empty;
-                            float density = 0;
-                            string type = string.Empty;
-                            string biome = string.Empty;
+                            string name = string.Empty, colour = string.Empty, density = string.Empty, type = string.Empty, biome = string.Empty;
+                            string octaves = string.Empty, persistence = string.Empty, frequency = string.Empty;
                             if (resource.HasValue("name")) { name = resource.GetValue("name"); }
-                            if (resource.HasValue("density"))
-                            {
-                                float dens;
-                                if (float.TryParse(resource.GetValue("density"), out dens)) { density = dens; }
-                            }
+                            if (resource.HasValue("colour")) { colour = resource.GetValue("colour"); }
+                            if (resource.HasValue("density")) { density = resource.GetValue("density"); }
                             if (resource.HasValue("type")) { type = resource.GetValue("type"); }
                             if (resource.HasValue("biome")) { biome = resource.GetValue("biome"); }
+                            if (resource.HasValue("octaves")) { octaves = resource.GetValue("octaves"); }
+                            if (resource.HasValue("persistence")) { persistence = resource.GetValue("persistence"); }
+                            if (resource.HasValue("frequency")) { frequency = resource.GetValue("frequency"); }
 
-                            if (biome.Length > 0) { CreateResource(cfg, name, density, type, biome); }
-                            else { CreateResource(cfg, name, density, type); }
+                            if (biome.Length > 0) { CreateResource(node, name, colour, density, type, octaves, persistence, frequency, biome); }
+                            else { CreateResource(node, name, colour, density, type, octaves, persistence, frequency); }
                         }
                     }
 

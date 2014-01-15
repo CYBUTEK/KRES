@@ -73,16 +73,14 @@ namespace KRES
 
         public static bool CheckAnimationPlaying(Part part, string animationName)
         {
-            bool isPlaying = false;
-            foreach (Animation anim in part.FindModelAnimators(animationName)) { isPlaying = anim.isPlaying; }
-            return isPlaying;
+            foreach (Animation anim in part.FindModelAnimators(animationName)) { return anim.isPlaying; }
+            return false;
         }
 
         public static float GetAnimationTime(Part part, string animationName)
         {
-            float time = 0;
-            foreach (Animation anim in part.FindModelAnimators(animationName)) { time = anim.animation[animationName].normalizedTime; }
-            return time;
+            foreach (Animation anim in part.FindModelAnimators(animationName)) { return anim.animation[animationName].normalizedTime; }
+            return 0;
         }
     }
 }
