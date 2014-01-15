@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using KRES.Extensions;
 
 namespace KRES.Defaults
 {
@@ -30,8 +30,8 @@ namespace KRES.Defaults
 
         public DefaultConfig(ConfigNode configNode)
         {
-            this.name = configNode.GetValue("name");
-            this.description = configNode.GetValue("description");
+            configNode.TryGetValue("name", ref this.name);
+            configNode.TryGetValue("description", ref this.description);
 
             foreach (ConfigNode bodyNode in configNode.GetNodes("KRES_BODY"))
             {
@@ -66,6 +66,29 @@ namespace KRES.Defaults
                 }
             }
             return false;
+        }
+
+        public ConfigNode CreateConfigNode(bool addRootNode = false)
+        {
+            ConfigNode configNode;
+            if (addRootNode)
+            {
+                configNode = new ConfigNode("KRES_DEFAULTS");
+            }
+            else
+            {
+                configNode = new ConfigNode();
+            }
+
+            configNode.AddValue("name", this.name);
+            configNode.AddValue("description", this.description);
+
+            foreach (DefaultBody body in this.bodies)
+            {
+                configNode.AddNode(body.CreateConfigNode());
+            }
+
+            return configNode;
         }
         #endregion
     }

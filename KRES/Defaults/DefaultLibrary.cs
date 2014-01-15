@@ -127,6 +127,13 @@ namespace KRES.Defaults
             }
         }
 
+        public static void SaveSelectedDefault(string path)
+        {
+            ConfigNode configNode = new ConfigNode("KRES");
+            configNode.AddNode(Instance.SelectedDefault.CreateConfigNode());
+            configNode.Save(path);
+        }
+
         public static void SaveDefaults(ConfigNode config, string path)
         {
             DefaultConfig defaults = GetSelectedDefault();

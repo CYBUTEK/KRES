@@ -84,5 +84,74 @@ namespace KRES
         {
             return new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
         }
+
+        public static string ColorToString(Color value)
+        {
+            return value.r + ", " + value.g + ", " + value.b + ", " + value.a;
+        }
+
+        /// <summary>
+        /// Get a Color from vector string.  Returns white if there was a problem.
+        /// </summary>
+        public static Color StringToColor(string vectorString)
+        {
+            string[] splitValue = vectorString.Split(',');
+
+            if (splitValue.Length == 3)
+            {
+                float r, g, b;
+
+                if (!float.TryParse(splitValue[0].Trim(), out r)) return Color.white;
+                if (!float.TryParse(splitValue[1].Trim(), out g)) return Color.white;
+                if (!float.TryParse(splitValue[2].Trim(), out b)) return Color.white;
+
+                return new Color(r, g, b);
+            }
+            else if (splitValue.Length == 4)
+            {
+                float r, g, b, a;
+
+                if (!float.TryParse(splitValue[0].Trim(), out r)) return Color.white;
+                if (!float.TryParse(splitValue[1].Trim(), out g)) return Color.white;
+                if (!float.TryParse(splitValue[2].Trim(), out b)) return Color.white;
+                if (!float.TryParse(splitValue[3].Trim(), out a)) return Color.white;
+
+                return new Color(r, g, b, a);
+            }
+            return Color.white;
+        }
+
+        /// <summary>
+        /// Parse colour from a vector string and place it in ref variable.  Leaves ref variable untouched if there was a problem.
+        /// </summary>
+        public static bool TryStringToColor(string vectorString, ref Color value)
+        {
+            string[] splitValue = vectorString.Split(',');
+
+            if (splitValue.Length == 3)
+            {
+                float r, g, b;
+
+                if (!float.TryParse(splitValue[0].Trim(), out r)) return false;
+                if (!float.TryParse(splitValue[1].Trim(), out g)) return false;
+                if (!float.TryParse(splitValue[2].Trim(), out b)) return false;
+
+                value = new Color(r, g, b);
+                return true;
+            }
+            else if (splitValue.Length == 4)
+            {
+                float r, g, b, a;
+
+                if (!float.TryParse(splitValue[0].Trim(), out r)) return false;
+                if (!float.TryParse(splitValue[1].Trim(), out g)) return false;
+                if (!float.TryParse(splitValue[2].Trim(), out b)) return false;
+                if (!float.TryParse(splitValue[3].Trim(), out a)) return false;
+
+                value = new Color(r, g, b, a);
+                return true;
+            }
+            return false;
+        }
     }
 }

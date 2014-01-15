@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using KRES.Extensions;
 
 namespace KRES.Defaults
 {
@@ -24,24 +25,11 @@ namespace KRES.Defaults
         #region Initialisation
         public DefaultBody(ConfigNode configNode)
         {
-            this.name = configNode.GetValue("name");
+            configNode.TryGetValue("name", ref this.name);
 
             foreach (ConfigNode resourceNode in configNode.GetNodes("KRES_RESOURCE"))
             {
-                DefaultResource resource = new DefaultResource();
-                resource.Name = resourceNode.GetValue("name");
-                resource.Type = resourceNode.GetValue("type");
-                Vector4 col = KSPUtil.ParseVector4(resourceNode.GetValue("colour"));
-                resource.Colour = new Color(col.x, col.y, col.z, col.w);
-                resource.Density = double.Parse(resourceNode.GetValue("density"));
-                resource.Octaves = double.Parse(resourceNode.GetValue("octaves"));
-                resource.Persistence = double.Parse(resourceNode.GetValue("persistence"));
-                resource.Frequency = double.Parse(resourceNode.GetValue("frequency"));
-                if (resourceNode.HasValue("biome"))
-                {
-                    resource.Biome = resourceNode.GetValue("biome");
-                }
-                this.resources.Add(resource);
+                this.resources.Add(new DefaultResource(resourceNode));
             }
         }
         #endregion
@@ -69,6 +57,19 @@ namespace KRES.Defaults
                 }
             }
             return false;
+        }
+
+        public ConfigNode CreateConfigNode()
+        {
+            ConfigNode configNode = new ConfigNode("KRES_BODY");
+            configNode.AddValue("name", this.name);
+
+            foreach (DefaultResource resource in this.resources)
+            {
+                configNode.AddNode(resource.CreateConfigNode());
+            }
+
+            return configNode;
         }
         #endregion 
     }
