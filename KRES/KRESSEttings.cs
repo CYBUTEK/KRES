@@ -67,7 +67,7 @@ namespace KRES
             bool planets = true;
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
-                if (!cfg.HasNode(body.bodyName))
+                if (!cfg.HasNode(body.bodyName) && body.bodyName != "Sun")
                 {
                     planets = false;
                     break;
@@ -76,7 +76,7 @@ namespace KRES
 
             if (!planets) { return false; }
 
-            else if (!cfg.HasValue("name") || !cfg.HasValue("octaves") || !cfg.HasValue("persistence") || !cfg.HasValue("frequency")) { return false; }
+            else if (!cfg.HasValue("name") || !cfg.HasValue("generated")) { return false; }
 
             else { return true; }
         }

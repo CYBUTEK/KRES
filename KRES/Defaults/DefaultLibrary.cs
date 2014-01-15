@@ -89,6 +89,85 @@ namespace KRES.Defaults
         {
             Instance.SelectedDefault = defaultConfig;
         }
+
+        private static void CreateResource(ConfigNode cfg, string name, Color colour, double density, string type, double octaves, double persistence, double frequency)
+        {
+            cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
+            foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
+            {
+                if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
+                {
+                    if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
+                    resource.AddValue("colour", colour.r.ToString() + ", " + colour.g + ", " + colour.b.ToString() + ", " + colour.a.ToString());
+                    resource.AddValue("density", density);
+                    resource.AddValue("type", type);
+                    resource.AddValue("octaves", octaves);
+                    resource.AddValue("persistence", persistence);
+                    resource.AddValue("frequency", frequency);
+                }
+            }
+        }
+
+        private static void CreateResource(ConfigNode cfg, string name, Color colour, double density, string type, double octaves, double persistence, double frequency, string biome)
+        {
+            cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
+            foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
+            {
+                if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
+                {
+                    if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
+                    resource.AddValue("colour", colour.r.ToString() + ", " + colour.g + ", " + colour.b.ToString() + ", " + colour.a.ToString());
+                    resource.AddValue("density", density);
+                    resource.AddValue("type", type);
+                    resource.AddValue("octaves", octaves);
+                    resource.AddValue("persistence", persistence);
+                    resource.AddValue("frequency", frequency);
+                    resource.AddValue("biome", biome);
+                }
+            }
+        }
+
+        public static void SaveDefaults(ConfigNode config, string path)
+        {
+            DefaultConfig defaults = GetSelectedDefault();
+            ConfigNode cfg = new ConfigNode("KRES");
+
+            if (!cfg.HasValue("name")) { cfg.AddValue("name", defaults.Name); }
+            if (!cfg.HasValue("generated")) { cfg.AddValue("generated", false); }
+
+            foreach (CelestialBody body in FlightGlobals.Bodies)
+            {
+                if (body.name != "Sun" && !cfg.HasNode(body.name))
+                {
+                    //Create body node               
+                    Debug.Log("[KRES]: Creating " + body.bodyName + " node");
+                    cfg.AddNode(body.bodyName);
+                    ConfigNode node = cfg.GetNode(body.bodyName);
+                    if (defaults.HasBody(body.bodyName))
+                    {
+                        foreach (DefaultResource resource in defaults.GetBody(body.bodyName).Resources)
+                        {
+                            if (resource.Biome.Length > 0) { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency, resource.Biome); }
+                            else { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency); }
+                        }
+                    }
+                    else { Debug.LogWarning("[KRES]: The " + defaults.Name + " defaults file does not contain a definition for " + body.bodyName); }
+                }
+            }
+
+            config.AddNode(cfg);
+            config.Save(path);
+        }
+
+        public static bool HasComponents(ConfigNode cfg)
+        {
+            foreach (CelestialBody body in FlightGlobals.Bodies)
+            {
+                if (!cfg.nodes.Contains(body.bodyName)) { return false; }
+            }
+            if (!cfg.HasValue("name") || !cfg.HasValue("generated")) { return false; }
+            return true;
+        }
         #endregion
     }
 }

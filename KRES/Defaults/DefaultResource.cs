@@ -25,6 +25,13 @@ namespace KRES.Defaults
             set { this.biome = value; }
         }
 
+        private Color colour = new Color(0, 0, 0, 0);
+        public Color Colour
+        {
+            get { return this.colour; }
+            set { this.colour = value; }
+        }
+
         private double density = 0;
         public double Density
         {

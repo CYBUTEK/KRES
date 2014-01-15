@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using UnityEngine;
 
 namespace KRES
@@ -9,6 +10,12 @@ namespace KRES
     {
         public const double DegToRad = Math.PI / 180d;
         public const double RadToDeg = 180d / Math.PI;
+
+        public static bool IsCelestialBody(string name)
+        {
+            if (FlightGlobals.Bodies.Any(body => body.bodyName == name)) { return true; }
+            return false;
+        }
 
         public static bool TryParseCelestialBody(string name, out CelestialBody result)
         {

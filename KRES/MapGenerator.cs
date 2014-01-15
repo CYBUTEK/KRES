@@ -3,6 +3,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using KRES.Defaults;
 
 namespace KRES
 {
@@ -33,7 +34,6 @@ namespace KRES
                         map.SetPixel(x, y, new Color(colour.r, colour.g, colour.b, a));
                     }
                     else { map.SetPixel(x, y, new Color(255, 255, 255, 0)); }
-
                 }
             }
             map.Apply();
@@ -47,21 +47,21 @@ namespace KRES
 
         private void Awake()
         {
-            ConfigNode settings = new ConfigNode("settings"), cfg = new ConfigNode("KRES"), test = null;
+            ConfigNode settings = new ConfigNode("settings"), test = null, cfg = new ConfigNode("KRES");
             string saveFile = Path.Combine(KSPUtil.ApplicationRootPath, "saves/" + HighLogic.fetch.GameSaveFolder + "/KRESSettings.cfg");
             string textures = Path.Combine(KSPUtil.ApplicationRootPath, "saves/" + HighLogic.fetch.GameSaveFolder + "/KRESTextures");
             string name = string.Empty;
             bool generated = false;
 
-            if (ConfigNode.Load(saveFile) != null) { test = ConfigNode.Load(saveFile); }
+            if (File.Exists(saveFile)) { test = ConfigNode.Load(saveFile); }
 
             else { Debug.LogWarning("[KRES]: KRESSettings.cfg is missing"); }
 
             //Gets the settings node
-            if (test == null || !KRESSettings.HasComponents(test.GetNode("KRES")))
+            if (!File.Exists(saveFile) ||  DefaultLibrary.HasComponents(test.GetNode("KRES")))
             {
                 //If simply missing components
-                if (test != null)
+                if (File.Exists(saveFile))
                 {
                     Debug.LogWarning("[KRES]: The KRESSettings.cfg file is missing components");
                     File.Delete(saveFile);
@@ -69,115 +69,126 @@ namespace KRES
 
                 //Create KRES config
                 print("[KRES]: Creating new KRESSettings.cfg");
-                if (!cfg.HasValue("name")) { cfg.AddValue("name", "KRESDefaults"); }
-                if (!cfg.HasValue("generated")) { cfg.AddValue("generated", false); }
-
-                //Generate all the planet config nodes
-                KRESSettings.GenerateSettings(cfg, "KRESDefaults");
-
-                //Save settings
-                settings.AddNode(cfg);
-                settings.Save(saveFile);
-                settings = settings.GetNode("KRES");
+                DefaultLibrary.SaveDefaults(settings, saveFile);
+                cfg = settings.GetNode("KRES");
                 print("[KRES]: Successfully created and saved new KRESSettings.cfg");
             }
 
             else
             {
                 print("[KRES]: Successfully loaded KRESSettings.cfg");
-                settings = test.GetNode("KRES");
+                settings = test;
+                cfg = test.GetNode("KRES");
+            }
+
+            if (cfg.HasValue("name")) { name = cfg.GetValue("name"); }
+
+            if (cfg.HasValue("generated"))
+            {
+                bool gen;
+                if (bool.TryParse(cfg.GetValue("generated"), out gen)) { generated = gen; }
             }
 
             if (!Directory.Exists(textures))
             {
                 Debug.LogWarning("[KRES]: KRESTextures directory does not exist in the save file");
                 Directory.CreateDirectory(textures);
+                generated = false;
                 print("[KRES]: Successfully created texture directory");
             }
 
-            if (settings.HasValue("name")) { name = settings.GetValue("name"); }
-
-            if (settings.HasValue("generated"))
+            if (!generated)
             {
-                bool gen;
-                if (bool.TryParse(settings.GetValue("generated"), out gen)) { generated = gen; }
-            }
-
-            print("[KRES]: Generating resource maps");
-            foreach (ConfigNode body in settings.nodes)
-            {
-                CelestialBody b;
-                if (KRESUtils.TryParseCelestialBody(body.name, out b))
+                if (name != DefaultLibrary.GetSelectedDefault().Name)
                 {
-                    if (!Directory.Exists(Path.Combine(textures, body.name)))
+                    print("[KRES]: Generating from new defaults");
+                    File.Delete(saveFile);
+                    settings.ClearNodes();
+                    DefaultLibrary.SaveDefaults(settings, saveFile);
+                    cfg = settings.GetNode("KRES");
+                    print("[KRES]: Generated new files from new defaults");
+                }
+                print("[KRES]: Generating resource maps");
+                foreach (ConfigNode body in cfg.nodes)
+                {
+                    if (KRESUtils.IsCelestialBody(body.name))
                     {
-                        Debug.LogWarning("[KRES]: Texture folder for " + body.name + " is missing");
-                        Directory.CreateDirectory(Path.Combine(textures, body.name));
-                        Debug.Log("[KRES]: Created texture folder for " + body.name);
-                    }
-                    string path = Path.Combine(textures, body.name);
-                    foreach (ConfigNode resource in body.GetNodes("KRES_RESOURCE"))
-                    {
-                        int seed = 0;
-                        if (resource.HasValue("seed") && int.TryParse(resource.GetValue("seed"), out seed))
+                        if (!Directory.Exists(Path.Combine(textures, body.name)))
                         {
-                            string resourceName = string.Empty;
-                            Color colour = new Color(0, 0, 0, 0);
-                            double density = 0, octaves = 0, persistence = 0, frequency = 0;
-
-                            if (resource.HasValue("name")) { resourceName = resource.GetValue("name"); }
-                            else
+                            Debug.LogWarning("[KRES]: Texture folder for " + body.name + " is missing");
+                            Directory.CreateDirectory(Path.Combine(textures, body.name));
+                            Debug.Log("[KRES]: Created texture folder for " + body.name);
+                        }
+                        string path = Path.Combine(textures, body.name);
+                        foreach (ConfigNode resource in body.GetNodes("KRES_RESOURCE"))
+                        {
+                            int seed = 0;
+                            if (resource.HasValue("seed") && int.TryParse(resource.GetValue("seed"), out seed))
                             {
-                                Debug.LogWarning("[KRES]: Invalid resource while generating node " + resource.id + " for " + body.name);
-                                continue;
-                            }
-                            print("[KRES]: Creating map for " + resourceName + " on " + body.name);
+                                string resourceName = string.Empty;
+                                Color colour = new Color(0, 0, 0, 0);
+                                double density = 0, octaves = 0, persistence = 0, frequency = 0;
 
-                            if (resource.HasValue("octaves"))
-                            {
-                                double oct;
-                                if (double.TryParse(resource.GetValue("octaves"), out oct)) { octaves = oct; }
-                            }
+                                if (resource.HasValue("name")) { resourceName = resource.GetValue("name"); }
+                                else
+                                {
+                                    Debug.LogWarning("[KRES]: Invalid resource while generating node " + resource.id + " for " + body.name);
+                                    continue;
+                                }
+                                print("[KRES]: Creating map for " + resourceName + " on " + body.name);
 
-                            if (resource.HasValue("persistence"))
-                            {
-                                double pers;
-                                if (double.TryParse(resource.GetValue("persistence"), out pers)) { persistence = pers; }
-                            }
+                                if (resource.HasValue("octaves"))
+                                {
+                                    double oct;
+                                    if (double.TryParse(resource.GetValue("octaves"), out oct)) { octaves = oct; }
+                                }
 
-                            if (resource.HasValue("frequency"))
-                            {
-                                double freq;
-                                if (double.TryParse(resource.GetValue("frequency"), out freq)) { frequency = freq; }
-                            }
+                                if (resource.HasValue("persistence"))
+                                {
+                                    double pers;
+                                    if (double.TryParse(resource.GetValue("persistence"), out pers)) { persistence = pers; }
+                                }
 
-                            if (resource.HasValue("colour"))
-                            {
-                                Vector4 col = KSPUtil.ParseVector4(resource.GetValue("colour"));
-                                colour = new Color(col.x, col.y, col.z, col.w);
-                            }
+                                if (resource.HasValue("frequency"))
+                                {
+                                    double freq;
+                                    if (double.TryParse(resource.GetValue("frequency"), out freq)) { frequency = freq; }
+                                }
 
-                            if (colour.r == 0 && colour.g == 0 && colour.b == 0 && colour.a == 0)
-                            {
-                                Debug.LogWarning("[KRES]: Invalid colour for node " + resource.id + " for " + body.name);
-                                continue;
-                            }
+                                if (resource.HasValue("colour"))
+                                {
+                                    Vector4 col = KSPUtil.ParseVector4(resource.GetValue("colour"));
+                                    colour = new Color(col.x, col.y, col.z, col.w);
+                                }
 
-                            if (resource.HasValue("density"))
-                            {
-                                double den;
-                                if (double.TryParse(resource.GetValue("density"), out den)) { density = den; }
-                            }
+                                if (colour.r == 0 && colour.g == 0 && colour.b == 0 && colour.a == 0)
+                                {
+                                    Debug.LogWarning("[KRES]: Invalid colour for node " + resource.id + " for " + body.name);
+                                    continue;
+                                }
 
-                            if (density == 0 || octaves == 0 || persistence == 0 || frequency == 0)
-                            {
-                                Debug.LogWarning("[KRES]: Invalid values for node " + resource.id + "for" + body.name);
-                                continue;
+                                if (resource.HasValue("density"))
+                                {
+                                    double den;
+                                    if (double.TryParse(resource.GetValue("density"), out den)) { density = den; }
+                                }
+
+                                if (density == 0 || octaves == 0 || persistence == 0 || frequency == 0)
+                                {
+                                    Debug.LogWarning("[KRES]: Invalid values for node " + resource.id + "for" + body.name);
+                                    continue;
+                                }
+                                GenerateMap(seed, octaves, persistence, frequency, path, resourceName, colour, density);
                             }
-                            GenerateMap(seed, octaves, persistence, frequency, path, resourceName, colour, density);
                         }
                     }
                 }
+                print("[KRES]: Map generation complete");
+                generated = true;
+                cfg.SetValue("generated", generated.ToString());
+                settings.ClearNodes();
+                settings.AddNode(cfg);
+                settings.Save(saveFile);
             }
         }
     }
