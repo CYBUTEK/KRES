@@ -57,7 +57,11 @@
     <Compile Include="ResourceController.cs" />
     <Compile Include="ResourceLoader.cs" />
     <Compile Include="ResourceMap.cs" />
+    <Compile Include="SettingsLibrary.cs" />
     <Compile Include="StorageModule.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Settings\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace KRES.Defaults
 {
@@ -34,7 +35,10 @@ namespace KRES.Defaults
 
             foreach (ConfigNode bodyNode in configNode.GetNodes("KRES_BODY"))
             {
-                this.bodies.Add(new DefaultBody(bodyNode));
+                if (FlightGlobals.Bodies.Any(b => b.name == bodyNode.GetValue("name")))
+                {
+                    this.bodies.Add(new DefaultBody(bodyNode));
+                }
             }
         }
         #endregion
