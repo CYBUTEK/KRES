@@ -10,6 +10,10 @@ namespace KRES
     {
         public const double DegToRad = Math.PI / 180d;
         public const double RadToDeg = 180d / Math.PI;
+        public static Color BlankColour
+        {
+            get { return new Color(0, 0, 0, 0); }
+        }
 
         public static bool IsCelestialBody(string name)
         {
@@ -83,6 +87,11 @@ namespace KRES
         public static string GetDLLPath()
         {
             return new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
+        }
+
+        public static string GetSavePath()
+        {
+            return Path.Combine(KSPUtil.ApplicationRootPath, "saves/" + HighLogic.fetch.GameSaveFolder);
         }
 
         public static string ColorToString(Color value)

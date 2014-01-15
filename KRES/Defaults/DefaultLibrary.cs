@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using KRES.Extensions;
 using UnityEngine;
 
 namespace KRES.Defaults
@@ -90,41 +91,42 @@ namespace KRES.Defaults
             Instance.SelectedDefault = defaultConfig;
         }
 
-        private static void CreateResource(ConfigNode cfg, string name, Color colour, double density, string type, double octaves, double persistence, double frequency)
+        private static void CreateResource(ConfigNode node, string name, double density, string type)
         {
-            cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
-            foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
-            {
-                if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
-                {
-                    if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
-                    resource.AddValue("colour", colour.r.ToString() + ", " + colour.g + ", " + colour.b.ToString() + ", " + colour.a.ToString());
-                    resource.AddValue("density", density);
-                    resource.AddValue("type", type);
-                    resource.AddValue("octaves", octaves);
-                    resource.AddValue("persistence", persistence);
-                    resource.AddValue("frequency", frequency);
-                }
-            }
+            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            cfg.AddValue("name", name);
+            cfg.AddValue("density", density);
+            cfg.AddValue("type", type);
+            node.AddNode(cfg);
         }
 
-        private static void CreateResource(ConfigNode cfg, string name, Color colour, double density, string type, double octaves, double persistence, double frequency, string biome)
+        private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency)
         {
-            cfg.AddNode("KRES_RESOURCE").AddValue("name", name);
-            foreach (ConfigNode resource in cfg.GetNodes("KRES_RESOURCE"))
-            {
-                if (resource.HasValue("name") && resource.GetValue("name") == name && !resource.HasValue("type"))
-                {
-                    if (type == "ore") { resource.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000")); }
-                    resource.AddValue("colour", colour.r.ToString() + ", " + colour.g + ", " + colour.b.ToString() + ", " + colour.a.ToString());
-                    resource.AddValue("density", density);
-                    resource.AddValue("type", type);
-                    resource.AddValue("octaves", octaves);
-                    resource.AddValue("persistence", persistence);
-                    resource.AddValue("frequency", frequency);
-                    resource.AddValue("biome", biome);
-                }
-            }
+            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            cfg.AddValue("name", name);
+            cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
+            cfg.AddValue("colour", KRESUtils.ColorToString(colour));
+            cfg.AddValue("density", density);
+            cfg.AddValue("type", type);
+            cfg.AddValue("octaves", octaves);
+            cfg.AddValue("persistence", persistence);
+            cfg.AddValue("frequency", frequency);
+            node.AddNode(cfg);
+        }
+
+        private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency, string biome)
+        {
+            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            cfg.AddValue("name", name);
+            cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
+            cfg.AddValue("colour", KRESUtils.ColorToString(colour));
+            cfg.AddValue("density", density);
+            cfg.AddValue("type", type);
+            cfg.AddValue("octaves", octaves);
+            cfg.AddValue("persistence", persistence);
+            cfg.AddValue("frequency", frequency);
+            cfg.AddValue("biome", biome);
+            node.AddNode(cfg);
         }
 
         public static void SaveSelectedDefault(string path)
@@ -139,8 +141,8 @@ namespace KRES.Defaults
             DefaultConfig defaults = GetSelectedDefault();
             ConfigNode cfg = new ConfigNode("KRES");
 
-            if (!cfg.HasValue("name")) { cfg.AddValue("name", defaults.Name); }
-            if (!cfg.HasValue("generated")) { cfg.AddValue("generated", false); }
+            cfg.TryAddValue("name", defaults.Name);
+            cfg.TryAddValue("generated", false);
 
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
@@ -154,7 +156,8 @@ namespace KRES.Defaults
                     {
                         foreach (DefaultResource resource in defaults.GetBody(body.bodyName).Resources)
                         {
-                            if (resource.Biome.Length > 0) { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency, resource.Biome); }
+                            if (resource.Type != "ore") { CreateResource(node, resource.Name, resource.Density, resource.Type); }
+                            else if (resource.Biome.Length > 0) { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency, resource.Biome); }
                             else { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency); }
                         }
                     }
@@ -172,7 +175,7 @@ namespace KRES.Defaults
             {
                 if (!cfg.nodes.Contains(body.bodyName)) { return false; }
             }
-            if (!cfg.HasValue("name") || !cfg.HasValue("generated")) { return false; }
+            if (!cfg.HasValues("name", "generated")) { return false; }
             return true;
         }
         #endregion

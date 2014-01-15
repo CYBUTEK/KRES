@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 namespace KRES.Extensions
 {
@@ -86,6 +87,25 @@ namespace KRES.Extensions
                 {
                     return true;
                 }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get a value and place it into the ref variable and return true. Otherwise returns false and leaves the ref variable untouched.
+        /// </summary>
+        public static bool TryGetValue(this ConfigNode node, string name, ref bool value)
+        {
+            if (node.HasValue(name))
+            {
+                bool result = value;
+
+                if (bool.TryParse(node.GetValue(name), out result))
+                {
+                    value = result;
+                    return true;
+                }
+                DebugWindow.Log(name + " was not parsable.");
             }
             return false;
         }
@@ -182,6 +202,63 @@ namespace KRES.Extensions
             value = defaultValue;
             return false;
         }
+
+        /// <summary>
+        /// Get a value and place it into the ref variable and return true. Otherwise returns false and populates the ref variable with the defaultValue.
+        /// </summary>
+        public static bool TryGetValue(this ConfigNode node, string name, out bool value, bool defaultValue)
+        {
+            if (node.HasValue(name))
+            {
+                if (bool.TryParse(node.GetValue(name), out value))
+                {
+                    return true;
+                }
+                else
+                {
+                    DebugWindow.Log(name + " was not parsable.");
+                    value = defaultValue;
+                    return false;
+                }
+            }
+            value = defaultValue;
+            return false;
+        }
+        #endregion
+
+        #region TryAddValue
+        /// <summary>
+        /// Checks if a value exists for a node, if not, it adds one.
+        /// </summary>
+        public static void TryAddValue(this ConfigNode node, string name, string value)
+        {
+            if (!node.HasValue(name))
+            {
+                node.AddValue(name, value);
+            }
+        }
+
+        /// <summary>
+        /// Checks if a value exists for a node, if not, it adds one.
+        /// </summary>
+        public static void TryAddValue(this ConfigNode node, string name, object value)
+        {
+            if (!node.HasValue(name))
+            {
+                node.AddValue(name, value);
+            }
+        }
+
+        /// <summary>
+        /// Checks if a value exists for a node, if not, it adds one.
+        /// </summary>
+        public static void TryAddValue(this ConfigNode node, string name, Color value)
+        {
+            if (!node.HasValue(name))
+            {
+                node.AddValue(name, KRESUtils.ColorToString(value));
+            }
+        }
         #endregion
 
         #region GetValue
@@ -210,6 +287,44 @@ namespace KRES.Extensions
             }
             node.AddValue(name, defaultValue);
             return defaultValue;
+        }
+        #endregion
+
+        #region HasValues
+        /// <summary>
+        /// Finds out if the node has all the listed values.
+        /// </summary>
+        public static bool HasValues(this ConfigNode node, string value1, string value2)
+        {
+            if (node.HasValue(value1) && node.HasValue(value2)) { return true; }
+            return false;
+        }
+
+        /// <summary>
+        /// Finds out if the node has all the listed values.
+        /// </summary>
+        public static bool HasValues(this ConfigNode node, string value1, string value2, string value3)
+        {
+            if (node.HasValues(value1, value2) && node.HasValue(value3)) { return true; }
+            return false;
+        }
+
+        /// <summary>
+        /// Finds out if the node has all the listed values.
+        /// </summary>
+        public static bool HasValues(this ConfigNode node, string value1, string value2, string value3, string value4)
+        {
+            if (node.HasValues(value1, value2, value3) && node.HasValue(value4)) { return true; }
+            return false;
+        }
+
+        /// <summary>
+        /// Finds out if the node has all the listed values.
+        /// </summary>
+        public static bool HasValues(this ConfigNode node, string[] values)
+        {
+            if (values.All(v => node.HasValue(v))) { return true; }
+            return false;
         }
         #endregion
     }

@@ -27,7 +27,7 @@ namespace KRES.Defaults
             set { this.biome = value; }
         }
 
-        private Color colour = new Color(0, 0, 0, 0);
+        private Color colour = KRESUtils.BlankColour;
         public Color Colour
         {
             get { return this.colour; }
