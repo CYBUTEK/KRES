@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animate.cs" />
+    <Compile Include="Defaults\DefaultLibrary.cs" />
+    <Compile Include="Defaults\DefaultResource.cs" />
+    <Compile Include="Defaults\DefaultConfig.cs" />
     <Compile Include="MainMenu\MenuOverlay.cs" />
     <Compile Include="KRESSettings.cs" />
     <Compile Include="KRESUtils.cs" />

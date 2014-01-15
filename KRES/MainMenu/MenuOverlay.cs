@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using UnityEngine;
+using KRES.Defaults;
 
 namespace KRES.MainMenu
 {
@@ -43,11 +44,9 @@ namespace KRES.MainMenu
             this.normalStyle.stretchWidth = true;
 
             this.buttonStyle = new GUIStyle(HighLogic.Skin.button);
-            this.buttonStyle.normal.textColor = Color.yellow;
+            this.buttonStyle.normal.textColor = this.buttonStyle.hover.textColor = this.buttonStyle.active.textColor = Color.yellow;
             this.buttonStyle.normal.background = this.buttonTextureNormal;
-            this.buttonStyle.hover.textColor = Color.yellow;
             this.buttonStyle.hover.background = this.buttonTextureHover;
-            this.buttonStyle.active.textColor = Color.yellow;
             this.buttonStyle.active.background = this.buttonTextureActive;
         }
 
@@ -59,7 +58,7 @@ namespace KRES.MainMenu
         private void Window(int windowID)
         {
             GUILayout.Label("KSP Resource Expansion System", this.headingStyle);
-            GUILayout.Label("Currently Selected Resource Pack: Default", this.normalStyle);
+            GUILayout.Label("Currently Selected Resource Pack: " + DefaultLibrary.GetSelectedDefault().Name, this.normalStyle);
             if (GUILayout.Button("Select Resource Pack", this.buttonStyle) && !PackSelector.IsBeingDisplayed)
             {
                 new GameObject("PackSelector", typeof(PackSelector));
