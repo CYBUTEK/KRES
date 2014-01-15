@@ -260,7 +260,7 @@ namespace KRES
         }
 
         /// <summary>
-        /// Prints a log entry to the debug window and KSP log file. (string[])
+        /// Prints a log entry to the debug window and KSP log file. (String[])
         /// </summary>
         public void Print(string[] value)
         {
@@ -293,6 +293,136 @@ namespace KRES
         {
             this.textureImage = null;
             this.textureName = string.Empty;
+        }
+        #endregion
+
+        #region Static Methods
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file.
+        /// </summary>
+        public static void Log(string entry)
+        {
+            Instance.Print(entry);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Integer)
+        /// </summary>
+        public static void Log(int value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Float)
+        /// </summary>
+        public static void Log(float value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Double)
+        /// </summary>
+        public static void Log(double value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Boolean)
+        /// </summary>
+        public static void Log(bool value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Byte)
+        /// </summary>
+        public static void Log(byte value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector2)
+        /// </summary>
+        public static void Log(Vector2 value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector2d)
+        /// </summary>
+        public static void Log(Vector2d value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector3)
+        /// </summary>
+        public static void Log(Vector3 value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector3d)
+        /// </summary>
+        public static void Log(Vector3d value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector4)
+        /// </summary>
+        public static void Log(Vector4 value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Vector4d)
+        /// </summary>
+        public static void Log(Vector4d value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Color)
+        /// </summary>
+        public static void Log(Color value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Rect)
+        /// </summary>
+        public static void Log(Rect value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (String[])
+        /// </summary>
+        public static void Log(string[] value)
+        {
+            Instance.Print(value);
+        }
+
+        /// <summary>
+        /// Prints a log entry to the debug window and KSP log file. (Array)
+        /// </summary>
+        public static void Log(Array value)
+        {
+            Instance.Print(value);
         }
         #endregion
     }
