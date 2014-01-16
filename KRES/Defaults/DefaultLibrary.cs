@@ -93,7 +93,7 @@ namespace KRES.Defaults
 
         private static void CreateResource(ConfigNode node, string name, double density, string type)
         {
-            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
             cfg.AddValue("name", name);
             cfg.AddValue("density", density);
             cfg.AddValue("type", type);
@@ -102,7 +102,7 @@ namespace KRES.Defaults
 
         private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency)
         {
-            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
             cfg.AddValue("name", name);
             cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
             cfg.AddValue("colour", KRESUtils.ColorToString(colour));
@@ -116,7 +116,7 @@ namespace KRES.Defaults
 
         private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency, string biome)
         {
-            ConfigNode cfg = new ConfigNode("KEES_RESOURCE");
+            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
             cfg.AddValue("name", name);
             cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
             cfg.AddValue("colour", KRESUtils.ColorToString(colour));
@@ -139,8 +139,7 @@ namespace KRES.Defaults
         public static void SaveDefaults(ConfigNode config, string path)
         {
             DefaultConfig defaults = GetSelectedDefault();
-            ConfigNode cfg = new ConfigNode("KRES");
-
+            ConfigNode cfg = new ConfigNode("KRES");            
             cfg.TryAddValue("name", defaults.Name);
             cfg.TryAddValue("generated", false);
 

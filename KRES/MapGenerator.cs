@@ -67,7 +67,6 @@ namespace KRES
                     Debug.LogWarning("[KRES]: The KRESSettings.cfg file is missing components");
                     File.Delete(settingsPath);
                 }
-
                 //Create KRES config
                 print("[KRES]: Creating new KRESSettings.cfg");
                 DefaultLibrary.SaveDefaults(settings, settingsPath);
@@ -126,7 +125,7 @@ namespace KRES
                                 Color colour = KRESUtils.BlankColour;
                                 double density = 0, octaves = 0, persistence = 0, frequency = 0;
 
-                                if (resource.TryGetValue("name", ref name)) { }
+                                if (resource.TryGetValue("name", ref resourceName)) { }
                                 else
                                 {
                                     Debug.LogWarning("[KRES]: Invalid resource while generating node " + resource.id + " for " + body.name);
@@ -139,7 +138,7 @@ namespace KRES
                                 if (resource.TryGetValue("frequency", ref frequency)) { }
                                 if (resource.TryGetValue("colour", ref colour)) { }
                                 if (resource.TryGetValue("density", ref density)) { }
-                                if (colour.r == 0 && colour.g == 0 && colour.b == 0 && colour.a == 0)
+                                if (colour.a == 0)
                                 {
                                     Debug.LogWarning("[KRES]: Invalid colour for node " + resource.id + " for " + body.name);
                                     continue;
