@@ -63,6 +63,15 @@ namespace KRES
             this.colour = colour;
             GenerateDensityMap(bodyRadius, pointDistance, seed);
         }
+
+        /// <summary>
+        /// Instantiate a resource map with the given texture
+        /// </summary>
+        public ResourceMap(string resourceName, Texture2D map)
+        {
+            this.resource = PartResourceLibrary.Instance.GetDefinition(resourceName);
+            this.texture = map; 
+        }
         #endregion
 
         #region Public Methods

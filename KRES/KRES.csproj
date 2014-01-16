@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animate.cs" />
+    <Compile Include="MapSet.cs" />
     <Compile Include="ResourceNames.cs" />
     <Compile Include="Defaults\DefaultBody.cs" />
     <Compile Include="Defaults\DefaultLibrary.cs" />

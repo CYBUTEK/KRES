@@ -27,11 +27,11 @@ namespace KRES
                     float a = 0;
                     double density = 0;
                     Vector3d position = KRESUtils.SphericalToCartesian(10d, x, y);
-                    density = simplex.noiseNormalized(position) - limit;
+                    density = simplex.noiseNormalized(position) - 1d + limit;
                     if (density > 0)
                     {
-                        a = Mathf.Lerp(0.2f, 1.25f, (float)(density / limit)) * colour.a;
-                        if (a / colour.a > 1) { a = colour.a; }
+                        a = Mathf.Lerp(0.2f, 1f, (float)(density / limit)) * colour.a;
+                        if (a > 0.8f) { a = 0.8f; }
                         map.SetPixel(x, y, new Color(colour.r, colour.g, colour.b, a));
                     }
                     else { map.SetPixel(x, y, KRESUtils.BlankColour); }
@@ -81,8 +81,8 @@ namespace KRES
                 cfg = test.GetNode("KRES");
             }
 
-            if (cfg.TryGetValue("name", ref name)) { }               
-            if (cfg.TryGetValue("generated", ref generated)) { }
+            cfg.TryGetValue("name", ref name);
+            cfg.TryGetValue("generated", ref generated);
 
 
             if (!Directory.Exists(texturePath))
@@ -104,7 +104,9 @@ namespace KRES
                     cfg = settings.GetNode("KRES");
                     print("[KRES]: Generated new files from new defaults");
                 }
+
                 print("[KRES]: Generating resource maps");
+                var timer = System.Diagnostics.Stopwatch.StartNew();
                 foreach (ConfigNode body in cfg.nodes)
                 {
                     if (KRESUtils.IsCelestialBody(body.name))
@@ -133,11 +135,11 @@ namespace KRES
                                 }
                                 print("[KRES]: Creating map for " + resourceName + " on " + body.name);
 
-                                if (resource.TryGetValue("octaves", ref octaves)) { }
-                                if (resource.TryGetValue("persistence", ref persistence)) { }
-                                if (resource.TryGetValue("frequency", ref frequency)) { }
-                                if (resource.TryGetValue("colour", ref colour)) { }
-                                if (resource.TryGetValue("density", ref density)) { }
+                                resource.TryGetValue("octaves", ref octaves);
+                                resource.TryGetValue("persistence", ref persistence);
+                                resource.TryGetValue("frequency", ref frequency);
+                                resource.TryGetValue("colour", ref colour);
+                                resource.TryGetValue("density", ref density);
                                 if (colour.a == 0)
                                 {
                                     Debug.LogWarning("[KRES]: Invalid colour for node " + resource.id + " for " + body.name);
@@ -145,7 +147,7 @@ namespace KRES
                                 }
                                 if (density == 0 || octaves == 0 || persistence == 0 || frequency == 0)
                                 {
-                                    Debug.LogWarning("[KRES]: Invalid values for node " + resource.id + "for" + body.name);
+                                    Debug.LogWarning("[KRES]: Invalid values for node " + resource.id + "for " + body.name);
                                     continue;
                                 }
                                 GenerateMap(seed, octaves, persistence, frequency, path, resourceName, colour, density);
@@ -153,7 +155,9 @@ namespace KRES
                         }
                     }
                 }
+                timer.Stop();
                 print("[KRES]: Map generation complete");
+                print(String.Format("[KRES]: Map generation took a total of {0}ms", timer.ElapsedMilliseconds));
                 generated = true;
                 cfg.SetValue("generated", generated.ToString());
                 settings.ClearNodes();
