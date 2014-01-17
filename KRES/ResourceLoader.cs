@@ -16,12 +16,11 @@ namespace KRES
         }
         #endregion
 
+        #region Initiation
         private void Awake()
         {
             if (!loaded)
             {
-                // TODO: Load from save or create using config settings.
-
                 foreach (CelestialBody planet in FlightGlobals.Bodies)
                 {
                     if (planet.bodyName != "Sun")
@@ -34,19 +33,18 @@ namespace KRES
                 DebugWindow.Instance.Print("- Loaded Resources -");
             }
         }
+        #endregion
 
+        #region Unloading
         private void OnDestroy()
         {
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU)
+            if (HighLogic.LoadedScene == GameScenes.MAINMENU && loaded)
             {
-                // TODO: Save to file associated with player's game save.
-
                 ResourceController.Instance.UnloadResources();
-
                 loaded = false;
-
                 DebugWindow.Instance.Print("- Unloaded Resources -");
             }
         }
+        #endregion
     }
 }

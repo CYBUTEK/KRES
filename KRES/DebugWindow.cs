@@ -84,9 +84,8 @@ namespace KRES
             }
             else if (!HighLogic.LoadedSceneIsFlight && this.textureImage != null)
             {
-                maps[i].HideTexture(body);
+                ResourceController.Instance.HideAllResources();
                 ClearTexture();
-                DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
                 i = 0;
             }
         }
