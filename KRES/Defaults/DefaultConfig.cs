@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using KRES.Extensions;
+using UnityEngine;
 
 namespace KRES.Defaults
 {
@@ -70,10 +71,10 @@ namespace KRES.Defaults
 
         public ConfigNode CreateConfigNode(bool addRootNode = false)
         {
-            ConfigNode configNode;
+            ConfigNode configNode = null;
             if (addRootNode)
             {
-                configNode = new ConfigNode("KRES_DEFAULTS");
+                configNode = new ConfigNode("KRES");
             }
             else
             {
@@ -82,10 +83,22 @@ namespace KRES.Defaults
 
             configNode.AddValue("name", this.name);
             configNode.AddValue("description", this.description);
-
-            foreach (DefaultBody body in this.bodies)
+            configNode.AddValue("generated", false);
+            foreach (CelestialBody body in FlightGlobals.Bodies)
             {
-                configNode.AddNode(body.CreateConfigNode());
+                if (body.bodyName != "Sun")
+                {
+                    Debug.Log("[KRES]: Creating " + body.bodyName + " node");
+                    if (HasBody(body.bodyName))
+                    {
+                        configNode.AddNode(this.bodies.Find(b => b.Name == body.name).CreateConfigNode());
+                    }
+                    else
+                    {
+                        configNode.AddNode(body.bodyName);
+                        Debug.LogWarning("[KRES]: The " + this.name + " defaults file does not contain a definition for " + body.bodyName);
+                    }
+                }
             }
 
             return configNode;

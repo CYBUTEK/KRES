@@ -61,9 +61,7 @@ namespace KRES.Defaults
 
         public ConfigNode CreateConfigNode()
         {
-            ConfigNode configNode = new ConfigNode("KRES_BODY");
-            configNode.AddValue("name", this.name);
-
+            ConfigNode configNode = new ConfigNode(this.name);
             foreach (DefaultResource resource in this.resources)
             {
                 configNode.AddNode(resource.CreateConfigNode());

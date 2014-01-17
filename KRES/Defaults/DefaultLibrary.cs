@@ -91,80 +91,9 @@ namespace KRES.Defaults
             Instance.SelectedDefault = defaultConfig;
         }
 
-        private static void CreateResource(ConfigNode node, string name, double density, string type)
+        public static void SaveSelectedDefault(ConfigNode config, string path)
         {
-            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
-            cfg.AddValue("name", name);
-            cfg.AddValue("density", density);
-            cfg.AddValue("type", type);
-            node.AddNode(cfg);
-        }
-
-        private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency)
-        {
-            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
-            cfg.AddValue("name", name);
-            cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
-            cfg.AddValue("colour", KRESUtils.ColorToString(colour));
-            cfg.AddValue("density", density);
-            cfg.AddValue("type", type);
-            cfg.AddValue("octaves", octaves);
-            cfg.AddValue("persistence", persistence);
-            cfg.AddValue("frequency", frequency);
-            node.AddNode(cfg);
-        }
-
-        private static void CreateResource(ConfigNode node, string name, Color colour, double density, string type, double octaves, double persistence, double frequency, string biome)
-        {
-            ConfigNode cfg = new ConfigNode("KRES_RESOURCE");
-            cfg.AddValue("name", name);
-            cfg.AddValue("seed", UnityEngine.Random.Range(0, 999999999).ToString("000000000"));
-            cfg.AddValue("colour", KRESUtils.ColorToString(colour));
-            cfg.AddValue("density", density);
-            cfg.AddValue("type", type);
-            cfg.AddValue("octaves", octaves);
-            cfg.AddValue("persistence", persistence);
-            cfg.AddValue("frequency", frequency);
-            cfg.AddValue("biome", biome);
-            node.AddNode(cfg);
-        }
-
-        public static void SaveSelectedDefault(string path)
-        {
-            ConfigNode configNode = new ConfigNode("KRES");
-            configNode.AddNode(Instance.SelectedDefault.CreateConfigNode());
-            configNode.Save(path);
-        }
-
-        public static void SaveDefaults(ConfigNode config, string path)
-        {
-            DefaultConfig defaults = GetSelectedDefault();
-            ConfigNode cfg = new ConfigNode("KRES");            
-            cfg.TryAddValue("name", defaults.Name);
-            cfg.TryAddValue("generated", false);
-
-            foreach (CelestialBody body in FlightGlobals.Bodies)
-            {
-                if (body.name != "Sun" && !cfg.HasNode(body.name))
-                {
-                    //Create body node               
-                    Debug.Log("[KRES]: Creating " + body.bodyName + " node");
-                    cfg.AddNode(body.bodyName);
-                    ConfigNode node = cfg.GetNode(body.bodyName);
-                    if (defaults.HasBody(body.bodyName))
-                    {
-                        foreach (DefaultResource resource in defaults.GetBody(body.bodyName).Resources)
-                        {
-                            if (resource.Type != "ore") { CreateResource(node, resource.Name, resource.Density, resource.Type); }
-                            else if (resource.Biome.Length > 0) { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency, resource.Biome); }
-                            else { CreateResource(node, resource.Name, resource.Colour, resource.Density, resource.Type, resource.Octaves, resource.Persistence, resource.Frequency); }
-                        }
-                    }
-                    else { Debug.LogWarning("[KRES]: The " + defaults.Name + " defaults file does not contain a definition for " + body.bodyName); }
-                }
-            }
-
-            config.AddNode(cfg);
+            config.AddNode(GetSelectedDefault().CreateConfigNode(true));
             config.Save(path);
         }
 
@@ -174,7 +103,7 @@ namespace KRES.Defaults
             {
                 if (!cfg.nodes.Contains(body.bodyName)) { return false; }
             }
-            if (!cfg.HasValues("name", "generated")) { return false; }
+            if (!cfg.HasValues("name", "description", "generated")) { return false; }
             return true;
         }
         #endregion

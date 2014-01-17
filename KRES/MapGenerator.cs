@@ -15,6 +15,14 @@ namespace KRES
         /// <summary>
         /// Creates and save texture using Simplex noise
         /// </summary>
+        /// <param name="seed">Seed for the simplex generator</param>
+        /// <param name="octaves">Octaves for the simplex function</param>
+        /// <param name="persistence">Persistence for the simplex function</param>
+        /// <param name="frequency">Frequency for the simplex function</param>
+        /// <param name="path">Path to save the texture to</param>
+        /// <param name="name">Name of the resource</param>
+        /// <param name="colour">Colour of the resource map</param>
+        /// <param name="limit">Percentage of the map that will be covered</param>
         private void GenerateMap(int seed, double octaves, double persistence, double frequency, string path, string name, Color colour, double limit)
         {
             if (limit <= 0) { return; }
@@ -74,7 +82,7 @@ namespace KRES
                 }
                 //Create KRES config
                 print("[KRES]: Creating new KRESSettings.cfg");
-                DefaultLibrary.SaveDefaults(settings, settingsPath);
+                DefaultLibrary.SaveSelectedDefault(settings, settingsPath);
                 cfg = settings.GetNode("KRES");
                 print("[KRES]: Successfully created and saved new KRESSettings.cfg");
             }
@@ -105,7 +113,7 @@ namespace KRES
                     print("[KRES]: Generating from new defaults");
                     File.Delete(settingsPath);
                     settings.ClearNodes();
-                    DefaultLibrary.SaveDefaults(settings, settingsPath);
+                    DefaultLibrary.SaveSelectedDefault(settings, settingsPath);
                     cfg = settings.GetNode("KRES");
                     print("[KRES]: Generated new files from new defaults");
                 }
@@ -135,7 +143,7 @@ namespace KRES
                                 if (resource.TryGetValue("name", ref resourceName)) { }
                                 else
                                 {
-                                    Debug.LogWarning("[KRES]: Invalid resource while generating node " + resource.id + " for " + body.name);
+                                    Debug.LogWarning("[KRES]: Nameless resource for " + body.name);
                                     continue;
                                 }
                                 print("[KRES]: Creating map for " + resourceName + " on " + body.name);
@@ -147,12 +155,12 @@ namespace KRES
                                 resource.TryGetValue("density", ref density);
                                 if (colour.a == 0)
                                 {
-                                    Debug.LogWarning("[KRES]: Invalid colour for node " + resource.id + " for " + body.name);
+                                    Debug.LogWarning("[KRES]: Invalid colour for node " + resourceName + " for " + body.name);
                                     continue;
                                 }
                                 if (density == 0 || octaves == 0 || persistence == 0 || frequency == 0)
                                 {
-                                    Debug.LogWarning("[KRES]: Invalid values for node " + resource.id + "for " + body.name);
+                                    Debug.LogWarning("[KRES]: Invalid values for node " + resourceName + "for " + body.name);
                                     continue;
                                 }
                                 GenerateMap(seed, octaves, persistence, frequency, path, resourceName, colour, density);

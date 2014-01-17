@@ -69,24 +69,35 @@ namespace KRES
                 this.visible = !this.visible;
             }
 
-            if (ResourceLoader.Loaded && HighLogic.LoadedSceneIsFlight && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody.bodyName != "Sun" && FlightGlobals.ActiveVessel.mainBody.bodyName != body)
+            if (ResourceLoader.Loaded && HighLogic.LoadedSceneIsFlight && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody.bodyName != body)
             {
                 if (maps != null)
                 {
                     maps[i].HideTexture(body);
+                    Print("Hid " + maps[i].Resource.name + " around " + body);
                     ClearTexture();
-                    DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
                     i = 0;
                 }
-                body = FlightGlobals.ActiveVessel.mainBody.bodyName;
-                DebugWindow.Instance.Print("Body is now " + body);
-                maps = ResourceController.Instance.ResourceBodies.Find(b => b.Name == body).ResourceMaps.ToArray();
+                if (FlightGlobals.ActiveVessel.mainBody.bodyName == "Sun")
+                {
+                    body = string.Empty;
+                    Print("Body is now Sun");
+                    maps = null;
+                }
+                else
+                {
+                    body = FlightGlobals.ActiveVessel.mainBody.bodyName;
+                    Print("Body is now " + body);
+                    maps = ResourceController.Instance.ResourceBodies.Find(b => b.Name == body).ResourceMaps.ToArray();
+                }
             }
+
             else if (!HighLogic.LoadedSceneIsFlight && this.textureImage != null)
             {
                 ResourceController.Instance.HideAllResources();
                 ClearTexture();
                 i = 0;
+                maps = null;
             }
         }
 
@@ -117,17 +128,38 @@ namespace KRES
                         if (body != string.Empty)
                         {
                             maps[i].HideTexture(body);
-                            i++;
+                            if (textureImage != null) { i++; }
                             if (i > maps.Length - 1) { i = 0; }
                             maps[i].ShowTexture(body);
                             SetTexture(maps[i].Texture, maps[i].Resource.name);
-                            DebugWindow.Instance.Print("Showing " + maps[i].Resource.name + " around " + body);
+                            Print("Showing " + maps[i].Resource.name + " around " + body);
                         }
                     }
                     else { Print("Cannot display map, not in flight mode"); }
                 }
                 else { Print("Cannot display map, resources are not loaded"); }
             }
+
+            if (GUILayout.Button("Show previous map", HighLogic.Skin.button))
+            {
+                if (ResourceLoader.Loaded)
+                {
+                    if (HighLogic.LoadedSceneIsFlight)
+                    {
+                        if (body != string.Empty)
+                        {
+                            maps[i].HideTexture(body);
+                            if (textureImage != null) { i--; }
+                            if (i < 0) { i = maps.Length - 1; }
+                            maps[i].ShowTexture(body);
+                            SetTexture(maps[i].Texture, maps[i].Resource.name);
+                            Print("Showing " + maps[i].Resource.name + " around " + body);
+                        }
+                    }
+                    else { Print("Cannot display map, not in flight mode"); }
+                }
+                else { Print("Cannot display map, resources are not loaded"); }
+            } 
 
             if (GUILayout.Button("Hide map", HighLogic.Skin.button))
             {
@@ -138,9 +170,9 @@ namespace KRES
                         if (body != string.Empty)
                         {
                             maps[i].HideTexture(body);
-                            i = 0;
+                            Print("Hid " + maps[i].Resource.name + " around " + body);
                             ClearTexture();
-                            DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
+                            i = 0;
                         }
                     }
                     else { Print("Cannot hide map, not in flight mode"); }

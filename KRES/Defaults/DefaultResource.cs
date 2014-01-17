@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using KRES.Extensions;
 
 namespace KRES.Defaults
@@ -20,11 +22,11 @@ namespace KRES.Defaults
             set { this.type = value; }
         }
 
-        private string biome = string.Empty;
-        public string Biome
+        private string[] biomes = new string[] { };
+        public string[] Biomes
         {
-            get { return this.biome; }
-            set { this.biome = value; }
+            get { return this.biomes; }
+            set { this.biomes = value; }
         }
 
         private Color colour = KRESUtils.BlankColour;
@@ -32,6 +34,20 @@ namespace KRES.Defaults
         {
             get { return this.colour; }
             set { this.colour = value; }
+        }
+
+        private double minAltitude = double.NaN;
+        public double MinAltitude
+        {
+            get { return this.minAltitude; }
+            set { this.minAltitude = value; }
+        }
+
+        private double maxAltitude = double.NaN;
+        public double MaxAltitude
+        {
+            get { return this.maxAltitude; }
+            set { this.maxAltitude = value; }
         }
 
         private double density = 0;
@@ -80,8 +96,10 @@ namespace KRES.Defaults
             configNode.TryGetValue("octaves", ref this.octaves);
             configNode.TryGetValue("persistence", ref this.persistence);
             configNode.TryGetValue("frequency", ref this.frequency);
-            configNode.TryGetValue("biome", ref this.biome);
-            configNode.TryGetValue("seed", ref this.seed);
+            configNode.TryGetValue("minAltitude", ref this.minAltitude);
+            configNode.TryGetValue("maxAltitude", ref this.maxAltitude);
+            configNode.TryGetValues("biome", ref this.biomes);
+            if (this.type == "ore") { this.seed = Random.Range(0, 999999999); }
         }
         #endregion
 
@@ -90,13 +108,19 @@ namespace KRES.Defaults
         {
             ConfigNode configNode = new ConfigNode("KRES_RESOURCE");
             configNode.AddValue("name", this.name);
-            configNode.AddValue("type", this.type);
-            configNode.AddValue("colour", this.colour);
             configNode.AddValue("density", this.density);
-            configNode.AddValue("octaves", this.octaves);
-            configNode.AddValue("persistence", this.persistence);
-            configNode.AddValue("biome", this.biome);
-            configNode.AddValue("seed", this.seed);
+            configNode.AddValue("type", this.type);
+            if (this.type == "ore")
+            {
+                configNode.AddValue("seed", this.seed.ToString("000000000"));
+                configNode.AddValue("colour", KRESUtils.ColorToString(this.colour));
+                configNode.AddValue("octaves", this.octaves);
+                configNode.AddValue("persistence", this.persistence);
+                configNode.AddValue("frequency", this.frequency);
+            }
+            if (!double.IsNaN(this.minAltitude)) { configNode.AddValue("minAltitude", this.minAltitude); }
+            if (!double.IsNaN(this.maxAltitude)) { configNode.AddValue("maxAltitude", this.maxAltitude); }
+            if (this.biomes.Length > 0) { configNode.AddValues("biome", this.biomes); }
             return configNode;
         }
         #endregion
