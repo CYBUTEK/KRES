@@ -11,7 +11,10 @@ namespace KRES
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class MapGenerator : MonoBehaviour
     {
-        //Simplex map generator
+        #region MapGenerator
+        /// <summary>
+        /// Creates and save texture using Simplex noise
+        /// </summary>
         private void GenerateMap(int seed, double octaves, double persistence, double frequency, string path, string name, Color colour, double limit)
         {
             if (limit <= 0) { return; }
@@ -45,7 +48,9 @@ namespace KRES
             timer.Stop();
             print(String.Format("[KRES]: Texture created in {0}ms", timer.ElapsedMilliseconds));
         }
+        #endregion
 
+        #region Initialization
         private void Awake()
         {
             ConfigNode settings = new ConfigNode("settings"), test = null, cfg = new ConfigNode("KRES");
@@ -165,5 +170,6 @@ namespace KRES
                 settings.Save(settingsPath);
             }
         }
+        #endregion
     }
 }

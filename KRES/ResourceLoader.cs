@@ -5,6 +5,7 @@ namespace KRES
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class ResourceLoader : MonoBehaviour
     {
+        #region Propreties
         private static bool loaded = false;
         /// <summary>
         /// Gets the loaded state of the resource system.
@@ -13,6 +14,7 @@ namespace KRES
         {
             get { return loaded; }
         }
+        #endregion
 
         private void Awake()
         {
@@ -20,11 +22,15 @@ namespace KRES
             {
                 // TODO: Load from save or create using config settings.
 
-                ResourceBody kerbin = new ResourceBody("Kerbin", new ResourceMap[] { new ResourceMap("LiquidFuel", Color.yellow, 0, 0, 0) });
-                ResourceController.Instance.ResourceBodies.Add(kerbin);
-
+                foreach (CelestialBody planet in FlightGlobals.Bodies)
+                {
+                    if (planet.bodyName != "Sun")
+                    {
+                        ResourceBody body = new ResourceBody(planet.bodyName);
+                        ResourceController.Instance.ResourceBodies.Add(body);
+                    }
+                }
                 loaded = true;
-
                 DebugWindow.Instance.Print("- Loaded Resources -");
             }
         }

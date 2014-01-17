@@ -21,6 +21,9 @@ namespace KRES
         private string textureName = string.Empty;
         private Texture textureImage = null;
         private float textureScale = 1f;
+        private int i = 0;
+        private string body = string.Empty;
+        private ResourceMap[] maps = null;
         #endregion
 
         #region Properties
@@ -65,6 +68,27 @@ namespace KRES
             {
                 this.visible = !this.visible;
             }
+
+            if (ResourceLoader.Loaded && HighLogic.LoadedSceneIsFlight && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody.bodyName != "Sun" && FlightGlobals.ActiveVessel.mainBody.bodyName != body)
+            {
+                if (maps != null)
+                {
+                    maps[i].HideTexture(body);
+                    ClearTexture();
+                    DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
+                    i = 0;
+                }
+                body = FlightGlobals.ActiveVessel.mainBody.bodyName;
+                DebugWindow.Instance.Print("Body is now " + body);
+                maps = ResourceController.Instance.ResourceBodies.Find(b => b.Name == body).ResourceMaps.ToArray();
+            }
+            else if (!HighLogic.LoadedSceneIsFlight && this.textureImage != null)
+            {
+                maps[i].HideTexture(body);
+                ClearTexture();
+                DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
+                i = 0;
+            }
         }
 
         private void OnGUI()
@@ -85,14 +109,44 @@ namespace KRES
             }
             GUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Show Resources", HighLogic.Skin.button))
+            if (GUILayout.Button("Show next map", HighLogic.Skin.button))
             {
-                ResourceController.Instance.ShowResource("LiquidFuel");
+                if (ResourceLoader.Loaded)
+                {
+                    if (HighLogic.LoadedSceneIsFlight)
+                    {
+                        if (body != string.Empty)
+                        {
+                            maps[i].HideTexture(body);
+                            i++;
+                            if (i > maps.Length - 1) { i = 0; }
+                            maps[i].ShowTexture(body);
+                            SetTexture(maps[i].Texture, maps[i].Resource.name);
+                            DebugWindow.Instance.Print("Showing " + maps[i].Resource.name + " around " + body);
+                        }
+                    }
+                    else { Print("Cannot display map, not in flight mode"); }
+                }
+                else { Print("Cannot display map, resources are not loaded"); }
             }
 
-            if (GUILayout.Button("Hide Resources", HighLogic.Skin.button))
+            if (GUILayout.Button("Hide map", HighLogic.Skin.button))
             {
-                ResourceController.Instance.HideResource("LiquidFuel");
+                if (ResourceLoader.Loaded)
+                {
+                    if (HighLogic.LoadedSceneIsFlight)
+                    {
+                        if (body != string.Empty)
+                        {
+                            maps[i].HideTexture(body);
+                            i = 0;
+                            ClearTexture();
+                            DebugWindow.Instance.Print("Hid " + maps[i].Resource.name + " around " + body);
+                        }
+                    }
+                    else { Print("Cannot hide map, not in flight mode"); }
+                }
+                else { Print("Cannot hide map, resources are not loaded"); }
             }
 
             // If a texture has been set allow it to be displayed.

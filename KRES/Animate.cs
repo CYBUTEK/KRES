@@ -5,6 +5,7 @@ namespace KRES
 {
     public static class Animate
     {
+        #region Initiation
         public static void InitiateAnimation(Part part, string animationName)
         {
             foreach (Animation anim in part.FindModelAnimators(animationName))
@@ -16,6 +17,7 @@ namespace KRES
                 state.enabled = false;
             }
         }
+        #endregion
 
         #region PlayAnimation()
         public static void PlayAnimation(Part part, string animationName, float animationSpeed)
@@ -71,6 +73,7 @@ namespace KRES
         }
         #endregion
 
+        #region Values
         public static bool CheckAnimationPlaying(Part part, string animationName)
         {
             foreach (Animation anim in part.FindModelAnimators(animationName)) { return anim.isPlaying; }
@@ -82,5 +85,6 @@ namespace KRES
             foreach (Animation anim in part.FindModelAnimators(animationName)) { return anim.animation[animationName].normalizedTime; }
             return 0;
         }
+        #endregion
     }
 }

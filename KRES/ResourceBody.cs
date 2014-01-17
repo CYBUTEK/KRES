@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace KRES
@@ -27,10 +28,31 @@ namespace KRES
         #endregion
 
         #region Initialisation
+        /// <summary>
+        /// Initiates with a list of ResourceMaps from all the textures in the directory
+        /// </summary>
+        /// <param name="name">Name of the body</param>
         public ResourceBody(string name)
         {
             this.name = name;
+            foreach(string path in Directory.GetFiles(Path.Combine(KRESUtils.GetSavePath(), "KRESTextures/" + name)))
+            {
+                if (Path.GetExtension(path) == ".png")
+                {
+                    string file = Path.GetFileNameWithoutExtension(path);
+                    Texture2D texture = new Texture2D(360, 180, TextureFormat.ARGB32, false);
+                    texture.LoadImage(File.ReadAllBytes(path));
+                    ResourceMap map = new ResourceMap(file, texture);
+                    resourceMaps.Add(map);
+                }
+            }
         }
+
+        /// <summary>
+        /// Initiates using a provided list of ResourceMaps
+        /// </summary>
+        /// <param name="name">Name of the body</param>
+        /// <param name="resourceMaps">List of ResourceMaps</param>
         public ResourceBody(string name, ResourceMap[] resourceMaps)
         {
             this.name = name;
