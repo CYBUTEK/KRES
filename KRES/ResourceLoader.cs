@@ -29,11 +29,12 @@ namespace KRES
         #region Static Methods
         public static void Load()
         {
-            foreach (CelestialBody planet in FlightGlobals.Bodies)
+            ConfigNode settings = ConfigNode.Load(System.IO.Path.Combine(KRESUtils.GetSavePath(), "KRESSettings.cfg")).GetNode("KRES");
+            foreach (ConfigNode planet in settings.nodes)
             {
-                if (planet.bodyName != "Sun")
+                if (KRESUtils.IsCelestialBody(planet.name))
                 {
-                    ResourceBody body = new ResourceBody(planet.bodyName);
+                    ResourceBody body = new ResourceBody(planet);
                     ResourceController.Instance.ResourceBodies.Add(body);
                 }
             }

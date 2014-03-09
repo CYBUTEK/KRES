@@ -102,11 +102,11 @@ namespace KRES
                             var timer = System.Diagnostics.Stopwatch.StartNew();
                             for (int x = 0; x < 1440; x++)
                             {
-                                double lon = (x / 4d);
+                                double lon = (x / 4d) - 180d;
                                 for (int y = 0; y < 720; y++)
                                 {
                                     double lat = (y / 4d) - 90d;
-                                    //Takes too much time to process ~50s per texture, will have to do on scanning
+                                    //Takes too much time to process ~50s per texture, will have to do on scanning.
                                     /*
                                     if (!double.IsInfinity(minAltitude) || !double.IsInfinity(maxAltitude))
                                     {
@@ -119,6 +119,8 @@ namespace KRES
                                     }
                                     */
 
+                                    //And for that it appears the overlay isn't synced over correct longitude. Will be on-the-go too.
+                                    /*
                                     if (biomes.Length > 0 || excludedBiomes.Length > 0)
                                     {
                                         string biome = planet.GetBiome(lat, lon);
@@ -128,7 +130,7 @@ namespace KRES
                                             continue;
                                         }
                                     }
-
+                                    */
                                     float a = 0;
                                     double density = 0;
                                     Vector3d position = KRESUtils.SphericalToCartesian(10d, x / 4d, y / 4d);
@@ -238,8 +240,6 @@ namespace KRES
         {
             if (amountComplete == 1d && !generated)
             {
-                timer.Stop();
-                time = timer.Elapsed.TotalSeconds;
                 print("[KRES]: Map generation complete");
                 print(String.Format("[KRES]: Map generation took a total of {0:0.000}s", time));
                 generated = true;
@@ -276,11 +276,16 @@ namespace KRES
                 {
                     this.visible = false;
                 }
+                if (timer.IsRunning)
+                {
+                    timer.Stop();
+                    time = timer.Elapsed.TotalSeconds;
+                }
                 GUI.Label(new Rect(240, 80, 140, 15), String.Format("Elapsed time: {0:0.000}s", time), skins.label);
             }
             else
             {
-                GUI.Label(new Rect(0, 85, 380, 15), "Please wait for map generation to finish. Do not leave the scene.", skins.label);
+                GUI.Label(new Rect(0, 80, 380, 15), "Please wait for map generation to finish. Do not leave the scene.", skins.label);
             }
             GUI.EndGroup();
         }

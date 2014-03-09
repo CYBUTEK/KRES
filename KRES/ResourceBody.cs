@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using KRES.Extensions;
 
 namespace KRES
 {
@@ -32,17 +34,18 @@ namespace KRES
         /// Initiates with a list of ResourceMaps from all the textures in the directory
         /// </summary>
         /// <param name="name">Name of the body</param>
-        public ResourceBody(string name)
+        public ResourceBody(ConfigNode body)
         {
-            this.name = name;
+            this.name = body.name;
             foreach(string path in Directory.GetFiles(Path.Combine(KRESUtils.GetSavePath(), "KRESTextures/" + name)))
             {
                 if (Path.GetExtension(path) == ".png")
                 {
-                    string file = Path.GetFileNameWithoutExtension(path);
+                    string resourceName = Path.GetFileNameWithoutExtension(path);
+                    ConfigNode resource = body.GetNodes("KRES_RESOURCE").First(n => n.HasValue("name") && n.GetValue("name") == resourceName && n.HasValue("type") && n.GetValue("type") == "ore");
                     Texture2D texture = new Texture2D(1440, 720, TextureFormat.ARGB32, false);
                     texture.LoadImage(File.ReadAllBytes(path));
-                    ResourceMap map = new ResourceMap(file, texture);
+                    ResourceMap map = new ResourceMap(resourceName, texture, resource);
                     resourceMaps.Add(map);
                 }
             }

@@ -55,9 +55,8 @@ namespace KRES
         /// <param name="max">Maximum value</param>
         public void SetValue(double value, double min, double max)
         {
-            if (value > max) { this.filled = max; return; }
-            if (value < min) { this.filled = min; return; }
-            if (min >= max) { this.filled = 1d; return; }
+            if (value > max || min >= max) { this.filled = 1d; return; }
+            if (value < min) { this.filled = 0d; return; }
             this.filled = (value - min) / (max - min);
         }
 

@@ -8,9 +8,12 @@ namespace KRES
 {
     public static class KRESUtils
     {
+        #region Constants
         public const double DegToRad = Math.PI / 180d;
         public const double RadToDeg = 180d / Math.PI;
         public static readonly Color BlankColour = new Color(0, 0, 0, 0);
+        public static readonly Texture2D BlankTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        #endregion
 
         public static bool IsCelestialBody(string name)
         {
@@ -87,6 +90,20 @@ namespace KRES
         public static string GetSavePath()
         {
             return Path.Combine(KSPUtil.ApplicationRootPath, "saves/" + HighLogic.fetch.GameSaveFolder);
+        }
+
+        public static string GetKRESVersion()
+        {
+            System.Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version.Revision == 0)
+            {
+                if (version.Build == 0)
+                {
+                    return version.ToString(2);
+                }
+                return version.ToString(3);
+            }
+            return version.ToString();
         }
 
         public static string ColorToString(Color value)

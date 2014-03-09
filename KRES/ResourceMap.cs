@@ -1,17 +1,11 @@
 ﻿using System;
 using UnityEngine;
+using KRES.Extensions;
 
 namespace KRES
 {
     public class ResourceMap
     {
-        #region Fields
-        private double[,] densityMap;
-        private bool[,] uncoveredMap;
-        private Texture2D hiddenTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        private Color hiddenPixel = KRESUtils.BlankColour;
-        #endregion
-
         #region Properties
         private PartResourceDefinition resource;
         /// <summary>
@@ -20,7 +14,14 @@ namespace KRES
         public PartResourceDefinition Resource
         {
             get { return this.resource; }
-            set { this.resource = value; }
+        }
+
+        /// <summary>
+        /// String name of the resource
+        /// </summary>
+        public string Name
+        {
+            get { return Resource.name; }
         }
 
         private Texture2D texture;
@@ -39,109 +40,62 @@ namespace KRES
         public Color Colour
         {
             get { return this.colour; }
-            set { this.colour = value; }
+        }
+
+        private double minAltitude = double.NegativeInfinity;
+        /// <summary>
+        /// Minimum altitude at which this resource can be found
+        /// </summary>
+        public double MinAltitude
+        {
+            get { return this.minAltitude; }
+        }
+
+        private double maxAltitude = double.PositiveInfinity;
+        /// <summary>
+        /// Maximum altitude at which this resource can be found
+        /// </summary>
+        public double MaxAltitude
+        {
+            get { return this.maxAltitude; }
+        }
+
+        private string[] biomes = new string[] { };
+        /// <summary>
+        /// Contains the only biomes where this resource can be found in
+        /// </summary>
+        public string[] Biomes
+        {
+            get { return this.biomes; }
+        }
+
+        private string[] excludedBiomes = new string[] { };
+        /// <summary>
+        /// Contains the only biomes this resource cannot be found in
+        /// </summary>
+        public string[] ExcludedBiomes
+        {
+            get { return this.excludedBiomes; }
         }
         #endregion
 
         #region Initialisation
         /// <summary>
-        /// Instantiate a blank resource map.
-        /// </summary>
-        public ResourceMap(string resourceName, Color colour)
-        {
-            this.hiddenTexture.SetPixel(1, 1, new Color(0, 0, 0, 0));
-            this.resource = PartResourceLibrary.Instance.GetDefinition(resourceName);
-            this.colour = colour;
-        }
-
-        /// <summary>
-        /// Instantiate a generated resource map.
-        /// </summary>
-        public ResourceMap(string resourceName, Color colour, int bodyRadius, int pointDistance, int seed)
-        {
-            this.resource = PartResourceLibrary.Instance.GetDefinition(resourceName);
-            this.colour = colour;
-            GenerateDensityMap(bodyRadius, pointDistance, seed);
-        }
-
-        /// <summary>
         /// Instantiate a resource map with the given texture
         /// </summary>
-        public ResourceMap(string resourceName, Texture2D map)
+        public ResourceMap(string resourceName, Texture2D map, ConfigNode resource)
         {
             this.resource = PartResourceLibrary.Instance.GetDefinition(resourceName);
-            this.texture = map; 
+            this.texture = map;
+            resource.TryGetValue("colour", ref colour);
+            resource.TryGetValue("minAltitude", ref minAltitude);
+            resource.TryGetValue("maxAltitude", ref maxAltitude);
+            resource.TryGetValue("biomes", ref biomes);
+            resource.TryGetValue("excludedBiomes", ref excludedBiomes);
         }
         #endregion
 
         #region Public Methods
-        /// <summary>
-        /// Generates the resource map.
-        /// </summary>
-        public void GenerateDensityMap(int bodyRadius, int pointDistance, int seed)
-        {
-            // TODO: Generate resource map from point distances.
-
-            int width = 360;
-            int height = 360;
-
-            this.densityMap = new double[width, height];
-            this.uncoveredMap = new bool[width, height];
-            float noiseScale = 5f;
-
-            for (int y = 0; y < this.densityMap.GetLength(1); y++)
-            {
-                for (int x = 0; x < this.densityMap.GetLength(0); x++)
-                {
-                    float sample = Mathf.PerlinNoise((float)x / (float)width * noiseScale, (float)y / (float)height * noiseScale);
-                    if (sample < 0.5f) sample = 0;
-
-                    this.densityMap[x, y] = sample;
-                    this.uncoveredMap[x, y] = true;
-                }
-            }
-
-            GenerateTexture();
-        }
-
-        /// <summary>
-        /// Generates a texture based on the current density map.
-        /// </summary>
-        public void GenerateTexture()
-        {
-            texture = new Texture2D(this.densityMap.GetLength(0), this.densityMap.GetLength(1), TextureFormat.ARGB32, true);
-            Color[] colours = new Color[texture.width * texture.height];
-
-            for (int y = 0; y < texture.height; y++)
-            {
-                for (int x = 0; x < texture.width; x++)
-                {
-                    if (this.uncoveredMap[x, y])
-                    {
-                        texture.SetPixel(x, y, new Color(this.colour.r, this.colour.g, this.colour.b, (float)this.densityMap[x, y]));
-                    }
-                    else
-                    {
-                        texture.SetPixel(x, y, this.hiddenPixel);
-                    }
-                }
-            }
-            texture.Apply();
-
-            DebugWindow.Instance.SetTexture(this.texture);
-        }
-
-        /// <summary>
-        /// Gets the density of resource at a specific longitude and latitude.
-        /// </summary>
-        public double DensityAtPosition(float longitude, float latitude)
-        {
-            int x = (int)((this.texture.width / 360f) * longitude);
-            int y = (int)((this.texture.height / 180f) * (latitude + 90f));
-
-            return this.densityMap[x, y];
-        }
-
         /// <summary>
         /// Shows the texture in scaled space.
         /// </summary>
@@ -155,7 +109,7 @@ namespace KRES
 
                     foreach (Material material in transform.renderer.materials)
                     {
-                        if (material.name.Contains("ResourceMap-" + this.resource.name))
+                        if (material.name.Contains("KRESResourceMap"))
                         {
                             containsMaterial = true;
                             material.mainTexture = this.texture;
@@ -166,7 +120,7 @@ namespace KRES
                     if (!containsMaterial)
                     {
                         Material material = new Material(Shader.Find("Unlit/Transparent"));
-                        material.name = "ResourceMap-" + this.resource.name;
+                        material.name = "KRESResourceMap";
                         material.mainTexture = this.texture;
 
                         Material[] materials = transform.renderer.materials;
@@ -191,9 +145,9 @@ namespace KRES
                 {
                     foreach (Material material in transform.renderer.materials)
                     {
-                        if (material.name.Contains("ResourceMap-" + this.resource.name))
+                        if (material.name.Contains("KRESResourceMap"))
                         {
-                            material.mainTexture = this.hiddenTexture;
+                            material.mainTexture = KRESUtils.BlankTexture;
                             return true;
                         }
                     }

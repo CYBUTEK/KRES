@@ -19,6 +19,9 @@ namespace KRES.Extensions
             return false;
         }
 
+        /// <summary>
+        /// Get a value and place it into the ref variable and return true. Otherwise returns false and leaves the ref variable untouched.
+        /// </summary>
         public static bool TryGetValue(this ConfigNode node, string name, ref string[] value)
         {
             if (node.HasValue(name))
