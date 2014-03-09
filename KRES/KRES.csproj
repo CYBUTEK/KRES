@@ -41,7 +41,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animate.cs" />
+    <Compile Include="Extensions\CelestialBodyExtensions.cs" />
+    <Compile Include="Extensions\PartExtensions.cs" />
+    <Compile Include="ProgressBar.cs" />
     <Compile Include="ResourceNames.cs" />
     <Compile Include="Defaults\DefaultBody.cs" />
     <Compile Include="Defaults\DefaultLibrary.cs" />

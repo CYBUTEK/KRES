@@ -40,7 +40,7 @@ namespace KRES
                 if (Path.GetExtension(path) == ".png")
                 {
                     string file = Path.GetFileNameWithoutExtension(path);
-                    Texture2D texture = new Texture2D(360, 180, TextureFormat.ARGB32, false);
+                    Texture2D texture = new Texture2D(1440, 720, TextureFormat.ARGB32, false);
                     texture.LoadImage(File.ReadAllBytes(path));
                     ResourceMap map = new ResourceMap(file, texture);
                     resourceMaps.Add(map);

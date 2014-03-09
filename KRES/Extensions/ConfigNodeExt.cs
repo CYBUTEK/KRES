@@ -19,6 +19,16 @@ namespace KRES.Extensions
             return false;
         }
 
+        public static bool TryGetValue(this ConfigNode node, string name, ref string[] value)
+        {
+            if (node.HasValue(name))
+            {
+                value = KRESUtils.ParseArray(node.GetValue(name));
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Get a value and place it into the ref variable and return true. Otherwise returns false and leaves the ref variable untouched.
         /// </summary>
@@ -226,18 +236,6 @@ namespace KRES.Extensions
         }
         #endregion
 
-        #region TryGetValues
-        public static bool TryGetValues(this ConfigNode node, string name, ref string[] values)
-        {
-            if (node.HasValue(name))
-            {
-                values = node.GetValues(name);
-                return true;
-            }
-            return false;
-        }
-        #endregion
-
         #region TryAddValue
         /// <summary>
         /// Checks if a value exists for a node, if not, it adds one.
@@ -299,16 +297,6 @@ namespace KRES.Extensions
             }
             node.AddValue(name, defaultValue);
             return defaultValue;
-        }
-        #endregion
-
-        #region AddValues
-        public static void AddValues(this ConfigNode node, string name, string[] values)
-        {
-            foreach (string value in values)
-            {
-                node.AddValue(name, value);
-            }
         }
         #endregion
 

@@ -29,6 +29,12 @@ namespace KRES.Defaults
             set { this.biomes = value; }
         }
 
+        private string[] excludedBiomes = new string[] { };
+        public string[] ExcludedBiomes
+        {
+            get { return this.excludedBiomes; }
+        }
+
         private Color colour = KRESUtils.BlankColour;
         public Color Colour
         {
@@ -98,7 +104,8 @@ namespace KRES.Defaults
             configNode.TryGetValue("frequency", ref this.frequency);
             configNode.TryGetValue("minAltitude", ref this.minAltitude);
             configNode.TryGetValue("maxAltitude", ref this.maxAltitude);
-            configNode.TryGetValues("biome", ref this.biomes);
+            configNode.TryGetValue("biomes", ref this.biomes);
+            configNode.TryGetValue("excludedBiomes", ref this.excludedBiomes);
             if (this.type == "ore") { this.seed = Random.Range(0, 999999999); }
         }
         #endregion
@@ -120,7 +127,8 @@ namespace KRES.Defaults
             }
             if (!double.IsNaN(this.minAltitude)) { configNode.AddValue("minAltitude", this.minAltitude); }
             if (!double.IsNaN(this.maxAltitude)) { configNode.AddValue("maxAltitude", this.maxAltitude); }
-            if (this.biomes.Length > 0) { configNode.AddValues("biome", this.biomes); }
+            if (this.biomes.Length > 0) { configNode.AddValue("biomes", string.Join(", ", biomes)); }
+            if (this.excludedBiomes.Length > 0) { configNode.AddValue("excludedBiomes", string.Join(", ", this.excludedBiomes)); }
             return configNode;
         }
         #endregion

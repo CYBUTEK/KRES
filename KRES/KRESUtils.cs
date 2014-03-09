@@ -10,15 +10,11 @@ namespace KRES
     {
         public const double DegToRad = Math.PI / 180d;
         public const double RadToDeg = 180d / Math.PI;
-        public static Color BlankColour
-        {
-            get { return new Color(0, 0, 0, 0); }
-        }
+        public static readonly Color BlankColour = new Color(0, 0, 0, 0);
 
         public static bool IsCelestialBody(string name)
         {
-            if (FlightGlobals.Bodies.Any(body => body.bodyName == name)) { return true; }
-            return false;
+            return FlightGlobals.Bodies.Any(body => body.bodyName == name);
         }
 
         public static bool TryParseCelestialBody(string name, out CelestialBody result)
@@ -38,7 +34,7 @@ namespace KRES
         #region Spherical/cartesian
         public static Vector3d CartesianToSpherical(Vector3d cartesian)
         {
-            double r = Math.Sqrt(Math.Pow(cartesian.x, 2d) + Math.Pow(cartesian.y, 2d) + Math.Pow(cartesian.z, 2d));
+            double r = cartesian.magnitude;
             double theta = Math.Atan(cartesian.y / cartesian.x) * RadToDeg;
             double phi = Math.Acos(cartesian.z / r) * RadToDeg;
             return new Vector3d(r, theta, phi);
@@ -67,7 +63,6 @@ namespace KRES
             double z = r * Math.Cos(phi * DegToRad);
             return new Vector3d(x, y, z);
         }
-
         #endregion
 
         public static GUIStyle GetDottyFontStyle()
@@ -97,6 +92,11 @@ namespace KRES
         public static string ColorToString(Color value)
         {
             return value.r + ", " + value.g + ", " + value.b + ", " + value.a;
+        }
+
+        public static string[] ParseArray(string text)
+        {
+            return text.Split(',').Select(s => s.Trim()).ToArray();
         }
 
         /// <summary>

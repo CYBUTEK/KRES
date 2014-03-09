@@ -9,7 +9,7 @@ namespace KRES
         private double[,] densityMap;
         private bool[,] uncoveredMap;
         private Texture2D hiddenTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-        private Color hiddenPixel = new Color(0, 0, 0, 0);
+        private Color hiddenPixel = KRESUtils.BlankColour;
         #endregion
 
         #region Properties

@@ -333,7 +333,7 @@ namespace KRES
         /// </summary>
         public void Print(Color value)
         {
-            Print("Color: RGBA(" + value.r + ", " +  value.g + ", " + value.b + ", " + value.a + ")");
+            Print("Color: " + KRESUtils.ColorToString(value));
         }
 
         /// <summary>

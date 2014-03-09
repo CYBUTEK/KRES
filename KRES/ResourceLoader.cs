@@ -19,19 +19,26 @@ namespace KRES
         #region Initiation
         private void Awake()
         {
-            if (!loaded)
+            if (!loaded && MapGenerator.generated)
             {
-                foreach (CelestialBody planet in FlightGlobals.Bodies)
-                {
-                    if (planet.bodyName != "Sun")
-                    {
-                        ResourceBody body = new ResourceBody(planet.bodyName);
-                        ResourceController.Instance.ResourceBodies.Add(body);
-                    }
-                }
-                loaded = true;
-                DebugWindow.Instance.Print("- Loaded Resources -");
+                Load();
             }
+        }
+        #endregion
+
+        #region Static Methods
+        public static void Load()
+        {
+            foreach (CelestialBody planet in FlightGlobals.Bodies)
+            {
+                if (planet.bodyName != "Sun")
+                {
+                    ResourceBody body = new ResourceBody(planet.bodyName);
+                    ResourceController.Instance.ResourceBodies.Add(body);
+                }
+            }
+            loaded = true;
+            DebugWindow.Instance.Print("- Loaded Resources -");
         }
         #endregion
 
