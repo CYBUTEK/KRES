@@ -5,6 +5,28 @@ namespace KRES.Extensions
 {
     public static class ConfigNodeExt
     {
+        #region TryGetNode
+        /// <summary>
+        /// Sees if ConfigNode has a name value of the given value and stores it in the ref.
+        /// </summary>
+        /// <param name="name">Name to find in the "name" value</param>
+        /// <param name="result">ConfigNode to store the result in</param>
+        public static bool TryGetNode(this ConfigNode node, string nodeName, string name, ref ConfigNode result)
+        {
+            if (node.nodes.Count > 0 && node.GetNodes(nodeName).Length > 0 &&  node.GetNodes(nodeName).Any(n => n.HasValue("name") && n.GetValue("name") == name))
+            {
+                result = node.GetNodes(nodeName).First(n => n.HasValue("name") && n.GetValue("name") == name);
+                return true;
+            }
+            return false;
+        }
+
+        public static ConfigNode GetNodeWithName(this ConfigNode node, string nodeName, string name)
+        {
+            return node.GetNodes(nodeName).First(n => n.HasValue("name") && n.GetValue("name") == name);
+        }
+        #endregion
+
         #region TryGetValue
         /// <summary>
         /// Get a value and place it into the ref variable and return true. Otherwise returns false and leaves the ref variable untouched.
@@ -269,7 +291,7 @@ namespace KRES.Extensions
         {
             if (!node.HasValue(name))
             {
-                node.AddValue(name, KRESUtils.ColorToString(value));
+                node.AddValue(name, KRESUtils.ColourToString(value));
             }
         }
         #endregion

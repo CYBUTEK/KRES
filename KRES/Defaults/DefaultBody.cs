@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using KRES.Extensions;
 
 namespace KRES.Defaults
@@ -23,13 +24,12 @@ namespace KRES.Defaults
         #endregion
 
         #region Initialisation
-        public DefaultBody(ConfigNode configNode)
+        public DefaultBody(ConfigNode configNode, Random random)
         {
             configNode.TryGetValue("name", ref this.name);
-
             foreach (ConfigNode resourceNode in configNode.GetNodes("KRES_RESOURCE"))
             {
-                this.resources.Add(new DefaultResource(resourceNode));
+                this.resources.Add(new DefaultResource(resourceNode, random));
             }
         }
         #endregion
@@ -47,6 +47,11 @@ namespace KRES.Defaults
             return null;
         }
 
+        public DefaultResource GetResourceOfType(string name, string type)
+        {
+            return this.Resources.Find(r => r.Name == name && r.Type == type);
+        }
+
         public bool HasResource(string name)
         {
             foreach (DefaultResource resource in this.resources)
@@ -59,14 +64,13 @@ namespace KRES.Defaults
             return false;
         }
 
-        public ConfigNode CreateConfigNode()
+        public ConfigNode CreateConfigNode(string type)
         {
-            ConfigNode configNode = new ConfigNode(this.name);
-            foreach (DefaultResource resource in this.resources)
+            ConfigNode configNode = new ConfigNode(this.Name);
+            foreach (DefaultResource resource in this.Resources.Where(r => r.Type == type))
             {
                 configNode.AddNode(resource.CreateConfigNode());
             }
-
             return configNode;
         }
         #endregion 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using KRES.Extensions;
 using UnityEngine;
 
@@ -99,12 +100,12 @@ namespace KRES.Defaults
 
         public static bool HasComponents(ConfigNode cfg)
         {
-            foreach (CelestialBody body in FlightGlobals.Bodies)
+            if (cfg.HasNode("KRES"))
             {
-                if (!cfg.nodes.Contains(body.bodyName)) { return false; }
+                ConfigNode node = cfg.GetNode("KRES");
+                return node.HasValue("generated") && node.nodes.Count > 0;
             }
-            if (!cfg.HasValues("name", "description", "generated")) { return false; }
-            return true;
+            return false;
         }
         #endregion
     }

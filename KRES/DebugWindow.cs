@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace KRES
@@ -23,7 +24,7 @@ namespace KRES
         private float textureScale = 1f;
         private int i = 0;
         private string body = string.Empty;
-        private ResourceMap[] maps = null;
+        private ResourceItem[] items = null;
         #endregion
 
         #region Properties
@@ -71,10 +72,10 @@ namespace KRES
 
             if (ResourceLoader.Loaded && HighLogic.LoadedSceneIsFlight && FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody.bodyName != body)
             {
-                if (maps != null)
+                if (items != null)
                 {
-                    maps[i].HideTexture(body);
-                    Print("Hid " + maps[i].Resource.name + " around " + body);
+                    items[i].Map.HideTexture(body);
+                    Print("Hid " + items[i].Name + " around " + body);
                     ClearTexture();
                     i = 0;
                 }
@@ -82,13 +83,13 @@ namespace KRES
                 {
                     body = string.Empty;
                     Print("Body is now Sun");
-                    maps = null;
+                    items = null;
                 }
                 else
                 {
                     body = FlightGlobals.ActiveVessel.mainBody.bodyName;
                     Print("Body is now " + body);
-                    maps = ResourceController.Instance.ResourceBodies.Find(b => b.Name == body).ResourceMaps.ToArray();
+                    items = ResourceController.Instance.ResourceBodies.Find(b => b.Name == body).ResourceItems.Where(i => i.HasMap).ToArray();
                 }
             }
 
@@ -97,7 +98,7 @@ namespace KRES
                 ResourceController.Instance.HideAllResources();
                 ClearTexture();
                 i = 0;
-                maps = null;
+                items = null;
             }
         }
 
@@ -125,14 +126,14 @@ namespace KRES
                 {
                     if (HighLogic.LoadedSceneIsFlight)
                     {
-                        if (body != string.Empty)
+                        if (body != string.Empty && items.Length > 0)
                         {
-                            maps[i].HideTexture(body);
+                            items[i].Map.HideTexture(body);
                             if (textureImage != null) { i++; }
-                            if (i > maps.Length - 1) { i = 0; }
-                            maps[i].ShowTexture(body);
-                            SetTexture(maps[i].Texture, maps[i].Resource.name);
-                            Print("Showing " + maps[i].Resource.name + " around " + body);
+                            if (i > items.Length - 1) { i = 0; }
+                            items[i].Map.ShowTexture(body);
+                            SetTexture(items[i]);
+                            Print("Showing " + items[i].Resource.name + " around " + body);
                         }
                     }
                     else { Print("Cannot display map, not in flight mode"); }
@@ -146,14 +147,14 @@ namespace KRES
                 {
                     if (HighLogic.LoadedSceneIsFlight)
                     {
-                        if (body != string.Empty)
+                        if (body != string.Empty && items.Length > 0)
                         {
-                            maps[i].HideTexture(body);
+                            items[i].Map.HideTexture(body);
                             if (textureImage != null) { i--; }
-                            if (i < 0) { i = maps.Length - 1; }
-                            maps[i].ShowTexture(body);
-                            SetTexture(maps[i].Texture, maps[i].Resource.name);
-                            Print("Showing " + maps[i].Resource.name + " around " + body);
+                            if (i < 0) { i = items.Length - 1; }
+                            items[i].Map.ShowTexture(body);
+                            SetTexture(items[i]);
+                            Print("Showing " + items[i].Resource.name + " around " + body);
                         }
                     }
                     else { Print("Cannot display map, not in flight mode"); }
@@ -165,12 +166,12 @@ namespace KRES
             {
                 if (ResourceLoader.Loaded)
                 {
-                    if (HighLogic.LoadedSceneIsFlight)
+                    if (HighLogic.LoadedSceneIsFlight && items.Length > 0)
                     {
                         if (body != string.Empty)
                         {
-                            maps[i].HideTexture(body);
-                            Print("Hid " + maps[i].Resource.name + " around " + body);
+                            items[i].Map.HideTexture(body);
+                            Print("Hid " + items[i].Resource.name + " around " + body);
                             ClearTexture();
                             i = 0;
                         }
@@ -333,7 +334,7 @@ namespace KRES
         /// </summary>
         public void Print(Color value)
         {
-            Print("Color: " + KRESUtils.ColorToString(value));
+            Print("Color: " + KRESUtils.ColourToString(value));
         }
 
         /// <summary>
@@ -365,10 +366,10 @@ namespace KRES
         /// <summary>
         /// Sets a texture that can be viewed from within the debug window.
         /// </summary>
-        public void SetTexture(Texture textureImage, string textureName = "")
+        public void SetTexture(ResourceItem item)
         {
-            this.textureImage = textureImage;
-            this.textureName = textureName;
+            this.textureImage = item.Map.GetTexture();
+            this.textureName = item.Resource.name;
         }
 
         /// <summary>

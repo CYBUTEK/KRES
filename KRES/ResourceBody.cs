@@ -18,48 +18,75 @@ namespace KRES
             get { return this.name; }
         }
 
-        private List<ResourceMap> resourceMaps = new List<ResourceMap>();
+        private List<ResourceItem> resourceItems = new List<ResourceItem>();
         /// <summary>
-        /// Gets and sets the resources associated with the celestial body.
+        /// Gets the resource items associated with this body
         /// </summary>
-        public List<ResourceMap> ResourceMaps
+        public List<ResourceItem> ResourceItems
         {
-            get { return this.resourceMaps; }
-            set { this.resourceMaps = value; }
+            get { return this.resourceItems; }
         }
         #endregion
 
         #region Initialisation
-        /// <summary>
-        /// Initiates with a list of ResourceMaps from all the textures in the directory
-        /// </summary>
-        /// <param name="name">Name of the body</param>
-        public ResourceBody(ConfigNode body)
+        public ResourceBody() { }
+
+        public ResourceBody(string body)
         {
-            this.name = body.name;
-            foreach(string path in Directory.GetFiles(Path.Combine(KRESUtils.GetSavePath(), "KRESTextures/" + name)))
+            this.name = body;
+        }
+        #endregion
+
+        #region Methods
+        internal IEnumerator<YieldInstruction> LoadItems(ConfigNode settings, System.Random random)
+        {
+            foreach (string type in KRESUtils.types.Values)
             {
-                if (Path.GetExtension(path) == ".png")
+                if (KRESUtils.GetRelevantBodies(type).Any(b => b.bodyName == this.Name))
                 {
-                    string resourceName = Path.GetFileNameWithoutExtension(path);
-                    ConfigNode resource = body.GetNodes("KRES_RESOURCE").First(n => n.HasValue("name") && n.GetValue("name") == resourceName && n.HasValue("type") && n.GetValue("type") == "ore");
-                    Texture2D texture = new Texture2D(1440, 720, TextureFormat.ARGB32, false);
-                    texture.LoadImage(File.ReadAllBytes(path));
-                    ResourceMap map = new ResourceMap(resourceName, texture, resource);
-                    resourceMaps.Add(map);
+                    foreach (ConfigNode data in settings.GetNode(type).GetNode(this.Name).GetNodes("KRES_DATA"))
+                    {
+                        string resourceName = string.Empty;
+                        data.TryGetValue("name", ref resourceName);
+                        if (!PartResourceLibrary.Instance.resourceDefinitions.Contains(resourceName)) { continue; }
+                        if (type == "ore")
+                        {
+                            string path = Path.Combine(KRESUtils.GetSavePath(), "KRESTextures/" + name + "/" + resourceName + ".png");
+                            if (File.Exists(path))
+                            {
+                                ResourceItem item = new ResourceItem(data, resourceName, this.Name, random);
+                                resourceItems.Add(item);
+                            }
+                        }
+                        else if (type == "gas" || type == "liquid")
+                        {
+                            ResourceItem item = new ResourceItem(data, resourceName, this.Name, type, random);
+                            resourceItems.Add(item);
+                        }
+                        yield return null;
+                    }
                 }
             }
         }
 
-        /// <summary>
-        /// Initiates using a provided list of ResourceMaps
-        /// </summary>
-        /// <param name="name">Name of the body</param>
-        /// <param name="resourceMaps">List of ResourceMaps</param>
-        public ResourceBody(string name, ResourceMap[] resourceMaps)
+        internal ResourceItem GetItem(string name, string type)
         {
-            this.name = name;
-            this.resourceMaps.AddRange(resourceMaps);
+            return ResourceItems.Find(i => i.Name == name && i.Type == KRESUtils.GetResourceType(type));
+        }
+
+        internal List<ResourceItem> GetItemsOfType(string type)
+        {
+            return ResourceItems.Where(i => i.Type == KRESUtils.GetResourceType(type)).ToList();
+        }
+
+        internal List<ResourceItem> GetItemsOfType(ResourceType type)
+        {
+            return ResourceItems.Where(i => i.Type == type).ToList();
+        }
+
+        internal List<ResourceItem> GetItemsOfName(string name)
+        {
+            return ResourceItems.Where(i => i.Name == name).ToList();
         }
         #endregion
     }

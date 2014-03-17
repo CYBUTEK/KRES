@@ -1,11 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace KRES
 {
+    public enum ResourceType
+    {
+        ORE,
+        LIQUID,
+        GAS
+    }
+
     public static class KRESUtils
     {
         #region Constants
@@ -13,11 +21,32 @@ namespace KRES
         public const double RadToDeg = 180d / Math.PI;
         public static readonly Color BlankColour = new Color(0, 0, 0, 0);
         public static readonly Texture2D BlankTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        public static readonly Dictionary<ResourceType, string> types = new Dictionary<ResourceType, string>(3)
+        {
+            { ResourceType.ORE, "ore" },
+            { ResourceType.LIQUID, "liquid" },
+            { ResourceType.GAS, "gas" }
+        };
         #endregion
+
+        public static string DataURL
+        {
+            get { return Path.Combine(GetSavePath(), "KRESData.cfg"); }
+        }
 
         public static bool IsCelestialBody(string name)
         {
             return FlightGlobals.Bodies.Any(body => body.bodyName == name);
+        }
+
+        public static GUIStyle BoldLabel
+        {
+            get
+            {
+                GUIStyle style = new GUIStyle(HighLogic.Skin.label);
+                style.fontStyle = FontStyle.Bold;
+                return style;
+            }
         }
 
         public static bool TryParseCelestialBody(string name, out CelestialBody result)
@@ -106,7 +135,7 @@ namespace KRES
             return version.ToString();
         }
 
-        public static string ColorToString(Color value)
+        public static string ColourToString(Color value)
         {
             return value.r + ", " + value.g + ", " + value.b + ", " + value.a;
         }
@@ -119,7 +148,7 @@ namespace KRES
         /// <summary>
         /// Get a Color from vector string.  Returns white if there was a problem.
         /// </summary>
-        public static Color StringToColor(string vectorString)
+        public static Color StringToColour(string vectorString)
         {
             string[] splitValue = vectorString.Split(',');
 
@@ -178,6 +207,62 @@ namespace KRES
                 return true;
             }
             return false;
+        }
+
+        public static ResourceType GetResourceType(string name)
+        {
+            return types.First(pair => pair.Value == name).Key;
+        }
+
+        public static string GetTypeString(ResourceType type)
+        {
+            return types.First(pair => pair.Key == type).Value;
+        }
+
+        public static string SecondsToTime(double seconds)
+        {
+            string result = string.Empty;
+            TimeSpan time = TimeSpan.FromSeconds(seconds);
+            if (time.Days > 0) { result += time.TotalDays.ToString().Split('.')[0] + "d "; }
+            if (time.Hours > 0) { result += time.Hours + "h "; }
+            if (time.Minutes > 0) { result += time.Minutes + "m "; }
+            if (time.Seconds > 0) { result += time.Seconds + "s"; }
+            return result.Trim();
+        }
+
+        public static List<CelestialBody> GetRelevantBodies(string type)
+        {
+            switch (type)
+            {
+                case "ore":
+                    return new List<CelestialBody>(FlightGlobals.Bodies.Where(b => b.pqsController != null));
+
+                case "gas":
+                    return new List<CelestialBody>(FlightGlobals.Bodies.Where(b => b.atmosphere));
+
+                case "liquid":
+                    return new List<CelestialBody>(FlightGlobals.Bodies.Where(b => b.ocean));
+
+                default:
+                    return new List<CelestialBody>();
+            }
+        }
+
+        public static GUIStyle GetLabelOfColour(string name)
+        {
+            Color colour = ResourceInfoLibrary.Instance.GetResource(name).Colour;
+            GUIStyle style = new GUIStyle(HighLogic.Skin.label);
+            style.normal.textColor = colour;
+            style.hover.textColor = colour;
+            style.fontStyle = FontStyle.Bold;
+            return style;
+        }
+
+        public static double Clamp01(double value)
+        {
+            if (value > 1) { return -value + 2d; }
+            if (value < 0) { return -value; }
+            return value;
         }
     }
 }

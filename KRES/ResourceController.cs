@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using KRES.Data;
 
 namespace KRES
 {
@@ -19,6 +21,15 @@ namespace KRES
         {
             get { return this.resourceBodies; }
             set { this.resourceBodies = value; }
+        }
+
+        public bool DataSet
+        {
+            get
+            {
+                if (DataManager.Current == null) { return false; }
+                return DataManager.Current.data.Count > 0;
+            }
         }
         #endregion
 
@@ -46,13 +57,7 @@ namespace KRES
             if (ResourceLoader.Loaded)
             {
                 DebugWindow.Instance.Print("Showing: " + resourceName);
-                foreach (ResourceBody body in this.resourceBodies)
-                {
-                    foreach (ResourceMap map in body.ResourceMaps)
-                    {
-                        map.ShowTexture(body.Name);
-                    }
-                }
+                GetCurrentBody().ResourceItems.Find(i => i.HasMap && i.Name == resourceName).Map.ShowTexture(GetCurrentBody().Name);
             }
         }
 
@@ -64,13 +69,7 @@ namespace KRES
             if (ResourceLoader.Loaded)
             {
                 DebugWindow.Instance.Print("Hiding: " + resourceName);
-                foreach (ResourceBody body in this.resourceBodies)
-                {
-                    foreach (ResourceMap map in body.ResourceMaps)
-                    {
-                        map.HideTexture(body.Name);
-                    }
-                }
+                GetCurrentBody().ResourceItems.Find(i => i.HasMap && i.Name == resourceName).Map.HideTexture(GetCurrentBody().Name);
             }
         }
 
@@ -84,9 +83,9 @@ namespace KRES
                 DebugWindow.Instance.Print("Hiding: All Resources");
                 foreach (ResourceBody body in this.resourceBodies)
                 {
-                    foreach (ResourceMap map in body.ResourceMaps)
+                    foreach (ResourceItem item in body.ResourceItems.Where(i => i.HasMap))
                     {
-                        map.HideTexture(body.Name);
+                        item.Map.HideTexture(body.Name);
                     }
                 }
             }
@@ -102,12 +101,38 @@ namespace KRES
                 foreach (Transform transform in ScaledSpace.Instance.scaledSpaceTransforms)
                 {
                     List<Material> materials = new List<Material>(transform.renderer.materials);
-                    materials.RemoveAll(m => m.name.Contains("ResourceMap-"));
+                    materials.RemoveAll(m => m.name.Contains("KRESResourceMap"));
                     transform.renderer.materials = materials.ToArray();
                 }
             }
 
             this.resourceBodies.Clear();
+        }
+
+        /// <summary>
+        /// Returns the ResourceBody of the given name
+        /// </summary>
+        /// <param name="name">Name of the body to find</param>
+        public ResourceBody GetBody(string name)
+        {
+            return ResourceBodies.Find(b => b.Name == name);
+        }
+
+        /// <summary>
+        /// Returns the ResourceBody associated to the current main body
+        /// </summary>
+        public ResourceBody GetCurrentBody()
+        {
+            return ResourceBodies.Find(b => b.Name == FlightGlobals.currentMainBody.bodyName);
+        }
+
+        public DataBody GetDataBody(ModuleKresScanner scanner)
+        {
+            if (DataSet) { return DataManager.Current.data.Find(d => d.Type == scanner.scannerType).GetBody(scanner.body.Name); }
+            else
+            {
+                return new DataType(scanner.type).GetBody(scanner.body.Name);
+            }
         }
         #endregion
     }

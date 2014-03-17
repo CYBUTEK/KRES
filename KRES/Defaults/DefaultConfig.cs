@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using KRES.Extensions;
-using UnityEngine;
 
 namespace KRES.Defaults
 {
@@ -33,12 +33,12 @@ namespace KRES.Defaults
         {
             configNode.TryGetValue("name", ref this.name);
             configNode.TryGetValue("description", ref this.description);
-
+            Random random = new Random();
             foreach (ConfigNode bodyNode in configNode.GetNodes("KRES_BODY"))
             {
                 if (KRESUtils.IsCelestialBody(bodyNode.GetValue("name")))
                 {
-                    this.bodies.Add(new DefaultBody(bodyNode));
+                    this.bodies.Add(new DefaultBody(bodyNode, random));
                 }
             }
         }
@@ -84,19 +84,21 @@ namespace KRES.Defaults
             configNode.AddValue("name", this.name);
             configNode.AddValue("description", this.description);
             configNode.AddValue("generated", false);
-            foreach (CelestialBody body in FlightGlobals.Bodies)
+            configNode.AddValue("WARNING", "SPOILERS BELOW, PROCEED AT YOUR OWN RISK");
+            foreach (string type in KRESUtils.types.Values)
             {
-                if (body.bodyName != "Sun")
+                UnityEngine.Debug.Log("[KRES]: Creating " + type + " node");
+                ConfigNode t = configNode.AddNode(type);
+                foreach (CelestialBody body in KRESUtils.GetRelevantBodies(type))
                 {
-                    Debug.Log("[KRES]: Creating " + body.bodyName + " node");
                     if (HasBody(body.bodyName))
                     {
-                        configNode.AddNode(this.bodies.Find(b => b.Name == body.name).CreateConfigNode());
+                        t.AddNode(this.bodies.Find(b => b.Name == body.name).CreateConfigNode(type));
                     }
                     else
                     {
-                        configNode.AddNode(body.bodyName);
-                        Debug.LogWarning("[KRES]: The " + this.name + " defaults file does not contain a definition for " + body.bodyName);
+                        t.AddNode(body.bodyName);
+                        UnityEngine.Debug.LogWarning("[KRES]: The " + this.name + " defaults file does not contain a definition of " + type + " for " + body.bodyName);
                     }
                 }
             }
